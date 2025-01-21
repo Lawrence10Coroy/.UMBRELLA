@@ -1,0 +1,22 @@
+. /data/data/com.termux/files/usr/etc/profile
+export HISTCONTROL=ignoreboth
+
+if [ -x /data/data/com.termux/files/usr/libexec/termux/command-not-found ]; then
+				command_not_found_handler() {
+              /data/data/com.termux/files/usr/libexec/termux/command-not-found $1;
+				}
+fi
+setopt +o nomatch
+#set nomatch so *.sh would not error if no file is available
+bash /data/data/com.termux/files/home/.UMBRELLA/libexec/UMBRELLA.login
+. /data/data/com.termux/files/usr/etc/profile
+PROMPT_DIRTRIM=2
+PS1='\[\e[0;32m\]\w\[\e[0m\] \[\e[0;97m\]\$\[\e[0m\] '
+
+set -g theme_nerd_fonts yes
+set DISPLAY :0
+set PULSE_SERVER 127.0.0.1
+set HOME /data/data/com.termux/files/home
+set ANDROID_ALLOW_UNDEFINED_SYMBOLS On
+set TOOLS /data/data/com.termux/files/home/.UMBRELLA/UMBRELLA/Tools
+

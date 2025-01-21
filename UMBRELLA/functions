@@ -1,0 +1,120 @@
+#!/usr/bin/bash
+#This file contain all UMBRELLA functions
+source ${HOME}/.UMBRELLA/UMBRELLA/variables
+theme() {
+  [[ $1 = dark ]] && {
+  Dark="/data/data/com.termux/files/home/.UMBRELLA/UMBRELLA/BANNER/dark"
+  bash $Dark;
+  sleep 0.5; }
+  [[ $1 = red ]] && {
+  Red="/data/data/com.termux/files/home/.UMBRELLA/UMBRELLA/BANNER/red"
+  bash $Red;
+  sleep 0.5; }
+
+  [[ $1 = cyan ]] && {
+  Cyan="/data/data/com.termux/files/home/.UMBRELLA/UMBRELLA/BANNER/cyan"
+  bash $Cyan
+  sleep 0.5; }
+}
+export -f theme
+
+ctrl_c() {
+  exit 0;
+}
+export -f ctrl_c
+about() {
+	printf "${bold}${red}(⋯☣) ${yellow}Invalid argument, type ${green}UMBRELLA ${red}--help${yellow} for helpper.${default}\n"
+}
+export -f about
+
+COMMANDS() {
+
+  command -v $1 >/dev/null || { printf "${red}${bold}(⋯☣) ${yellow}UMBRELLA CORPORACION need $1. -->${underline}Run apt install $2${default}\n";exit;}
+}
+export -f COMMANDS
+
+helpper() {
+  printf "${yellow}☣ U M B R E L L A ☣ C O R P O R A T I O N ☣ ${version} (c) by LAWRENCE •‣ It is a custom configuration tool that makes it simple to perform basic tasks. At Umbrella Corporation we believe that nothing is impossible. If you can imagine it, you can create it!. The following is the help menu that provides you with the available tools that you can use to make using our tool easier.\nSyntax: COMMANDS [-args-] [-descriptions-]\n 
+
+\n✲ THIS COMMANDS THERE FOR PERSONALITYON TO UMBRELLA CORPORATION ✲
+	       ✲ Settings Opctions ✲
+   COMMANDS    ∵   ARGUMENTS    ∵   DESCRIPTION
+
+  ❉ ${green}UMBRELLA${yellow}     ┄┄┄┄┄┅┅┅┅┅┅┆ ${red}-h  ${yellow}| ${red}--help${yellow} ┆┅┅┅┅┅┄┄┄┄┇ Help from UMBRELLA CORPORATION.
+  ❉ ${green}adduser${yellow}     ┄┄┄┄┄┄┅┅┅┅┅┅┆ ${red}-n  ${yellow}| ${red}--new${yellow}  ┆┅┅┅┅┅┄┄┄┄┇ Add a username.
+                            ┆${red}-r ${yellow}| ${red}--remove${yellow} ┆┅┅┅┅┅┄┄┄┄┇ Remove your username.
+  ❉ ${green}day ${yellow}| ${green}night ${yellow}| ${green}sepia${yellow}  ┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ To quickly switch the color mode background.
+  ❉ ${green}password${yellow}     ┄┄┄┄┄┅┅┅┅┅┅┆ ${red}-n  ${yellow}| ${red}--new  ${yellow}┆┅┅┅┅┅┄┄┄┄┇ Add/get a password to log in to login UMBRELLA.
+                            ┆  ${red}passwd set${yellow}  ┆┅┅┅┅┅┄┄┄┄┇ Set mode enable/password in login.
+  ❉ ${green}theme${yellow}        ┄┄┄┄┄┅┅┅┅┅┅┆ ${red}-c ${yellow}| ${red}--color${yellow} ┆┅┅┅┅┅┄┄┄┄┇ Set a banner color that providedUMBRELLA CORPORATION. Available colors: cyan, red and dark.
+                            ┆ ${red}-s${yellow}  | ${red}--set${yellow}  ┆┅┅┅┅┅┄┄┄┄┇ Set mode enable/disable or costum, for the UMBRELLA wall banner.
+  ❉ ${green}tools${yellow}        ┄┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Tools that Umbrella Corporation can provide you.
+                            ┆ ${red}-h${yellow}  | ${red}--help${yellow} ┆┅┅┅┅┅┄┄┄┄┇ For more help of tools.
+  ❉ ${green}version${yellow}      ┄┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Show version UMBRELLA installed.
+
+  \n✲ THIS COMMANDS THERE FUNCTIONS TO UMBRELLA CORPORATION ✲
+                 ✲ Commands ✲
+   COMMANDS             ∵           DESCRIPTION$D
+  ❉ ${green}archivos${yellow}      ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ File management of your Android.
+  ❉ ${green}pkg2install${yellow}   ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ About packages provided by UMBRELLA CORPORATION.
+  ❉ ${green}apkinf${yellow}        ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Provides information on phone applications.
+  ❉ ${green}lock${yellow}          ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇  Block termux.
+  ❉ ${green}LOCALHOST${yellow}     ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Show your public internet protocol.
+  ❉ ${green}p10k  ${yellow}        ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ To access the settings of Powerlevel10k is a theme for Zsh.
+  ❉ ${green}tree${yellow}          ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ File Map/Map Display.
+  ❉ ${green}tldr${yellow}          ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Command Manual/Command Usage.
+  ❉ ${green}traductor${yellow}     ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Init a command line traductor.
+  ┇┄┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇${default}\n\n"
+}
+export -f helpper
+
+pass () {
+  [[ $1 = set  ]] && {
+      login=$(grep "pass" ${libexec}/UMBRELLA.login|tail -n 1)
+      select opt in Password Disable Exit
+      do
+        [[ $opt = Exit ]] && { exit 0; }
+        [[ $opt = Password ]] && { opt="Get"; }
+        sed -i "s|$login|pass $opt|" $libexec/UMBRELLA.login
+        break
+      done
+    }
+    [[ $1 = New ]] && {
+
+      while read -sp "New password: " pass && printf "\n" && [[ -z $pass ]]
+      do
+        continue
+      done
+      while read -sp "Retype new password: " pass2 && printf "\n" && [[ -z $pass2 ]]
+      do
+        continue
+      done
+      [[ $pass = $pass2 ]] && {
+        echo $pass|openssl enc -aes-256-cbc -md sha512 -a -pbkdf2 -iter 100000 \
+        -salt -pass pass:Secret@123# > $HOME/.UMBRELLA/UMBRELLA/.lawrence;
+              echo -en "\e[34mPassword to start operations in the system, saved!.\e[0m\n";
+            } || { echo -en "\e[35mERROR:\e[0m Password do noy match.\n";pass New;
+          }
+        }
+  [[ $1 = Get ]] && {
+      while read -sp "Password: " pass && [[ -z $pass ]]
+
+      do
+        continue
+      done;
+      until [[ $pass = $(cat $HOME/.UMBRELLA/UMBRELLA/.lawrence|openssl enc -aes-256-cbc -md sha512 -a -d -pbkdf2 -iter 100000  -salt -pass pass:Secret@123#) ]] && printf "\n"
+      do
+        echo -en "\e[35mERROR:\e[0m Retype the  password\n"
+        #termux-toast -b red Wrong password
+        pass Get
+      done
+      #termux-toast -b green Welcome Back $user;
+    }
+
+  [[ $1 = Disable ]] && {
+      echo "Access without pass" >>$log
+        #termux-toast -b green Welcome Back $user;
+      }
+    }
+export -f pass
+

@@ -1,0 +1,26 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/infoga ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for infoga...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install python
+    python3 -m pip install --upgrade pip &>/dev/null;
+    git clone https://github.com/m4ll0k/Infoga $PREFIX/opt/Infoga
+    cd $PREFIX/opt/Infoga
+    python3 -m pip install -r requirements.txt
+    python3 setup.py install
+    touch $PREFIX/bin/infoga
+    cat <<- Confg > $PREFIX/bin/infoga
+#!/bin/bash
+infoga="/data/data/com.termux/files/usr/opt/Infoga"
+cd \${infoga}
+exec python3 "\${infoga}/infoga.py" "\$@"
+Confg
+    chmod 711 $PREFIX/bin/infoga
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    infoga <argv>\e[0m\n";
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

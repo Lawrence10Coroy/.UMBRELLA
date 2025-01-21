@@ -1,0 +1,23 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/cupp ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for cupp...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install python
+    python3 -m pip install --upgrade pip &>/dev/null;
+    git clone https://github.com/Mebus/cupp $PREFIX/opt/cupp
+    touch $PREFIX/bin/cupp
+    cat <<- Confg > $PREFIX/bin/cupp
+#!/usr/bin/bash
+cupp="/data/data/com.termux/files/usr/opt/cupp"
+cd \${cupp}
+exec python3 "\${cupp}/cupp.py" "\$@"
+Confg
+    chmod 711 $PREFIX/bin/cupp
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    cupp <argv>\e[0m\n";
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

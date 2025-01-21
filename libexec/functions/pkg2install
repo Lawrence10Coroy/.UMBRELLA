@@ -1,0 +1,203 @@
+#!/bin/bash
+
+#AUTOR: LAWRENCE COROY
+source ${HOME}/.UMBRELLA/UMBRELLA/variables
+
+[[ -z $1 ]] && {
+      printf "${yellow}USE: ${green}pkg2install ${red}<packages> ${yellow}to install a package providing UMBRELLA.
+For more help type ${green}UMBRELLA ${yellow}[ ${red}-h ${yellow}| ${red}--help ${yellow}] for helpper UMBRELLA CORPORATION.
+
+            PACKAGES:
+            ${red}-u ${yellow}| ${red}UMBRELLA${yellow}   ┄┄┄┄┄┅┅┅┅┅┅┆
+            ${red}-p ${yellow}| ${red}Packages${yellow}   ┄┄┄┄┄┅┅┅┅┅┅┆ Set of open source tools adapted to the Android OS packaged in a .deb extension for exclusive use in Termux.
+            ${red}-z ${yellow}| ${red}Oh-my-zsh${yellow}  ┄┄┄┄┄┅┅┅┅┅┅┆ The Zsh is a Unix shell that can be used as an interactive login shell and as a command interpreter for shell scripting.
+            ${red}-t ${yellow}| ${red}Oh-my-Tmux${yellow} ┄┄┄┄┄┅┅┅┅┅┅┆ Tmux is a terminal multiplexer: it allows creating, accessing and controlling multiple terminals from a single screen.
+            ${red}-i ${yellow}| ${red}i-Haklab${yellow}   ┄┄┄┄┄┅┅┅┅┅┅┆ i-Haklab is a hacking laboratory for Termux that contains open source tools for osint, pentesting, scan/find vulnerabilities, exploitation and post-exploitation.
+            ${red}-v ${yellow}| ${red}Vim${yellow}        ┄┄┄┄┄┅┅┅┅┅┅┆ Vim is an open source, free, cross-platform text editor.
+            ${red}-n ${yellow}| ${red}Neovim${yellow}     ┄┄┄┄┄┅┅┅┅┅┅┆ Neovim is a highly customizable and extensible text editor, which is a fork of the Vim project.${default}
+      \n\n"
+}
+
+Packages() {
+      echo "Installing packages ... "
+      apt update && yes|pkg upgrade &>/dev/null;
+      if test ! $(command -v wget) >/dev/null; then
+            yes|pkg install wget &>/dev/null;
+      fi
+      if test ! $(command -v gnupg) >/dev/null; then
+            yes|pkg install gnupg &>/dev/null;
+      fi
+      mkdir -p $PREFIX/etc/apt/sources.list.d
+      wget https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/ivam3-termux-packages.list -O $PREFIX/etc/apt/sources.list.d/ivam3-termux-packages.list
+      if [ "$(echo $?)" != "0" ]; then
+            echo -en "\e[31mE: \e[0mPackages functions. 1\n"
+      fi
+      curl -fsSL "https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/dists/stable/public_key.gpg"|gpg --dearmor|tee "$PREFIX/etc/apt/trusted.gpg.d/ivam3.gpg" >/dev/null
+      if [ "$(echo $?)" != "0" ]; then
+            echo -en "\e[31mE: \e[0mPackages functions. 2\n"
+      fi
+      apt update >/dev/null;
+      echo -en "\e[36mInstallation Successfully\n"
+}
+
+UMBRELLA() {
+      echo "Installing UMBRELLA CORPORATION ... "
+      chmod -R a+rx ~/.UMBRELLA
+      mkdir -p $PREFIX/var/log && touch $PREFIX/var/log/Umbrella.log
+      apt update && yes|pkg upgrade;
+      yes|apt-get install tree tealdeer lsd zsh git curl gnupg tmux vim-python nodejs python-pynvim neovim openjdk-17;
+      tldr --update;
+      echo "Setting UMBRELLA following instructions ... "
+      if test -ds ~/.termux; then mv ~/.termux ~/.termux.old &>/dev/null; fi
+      mv ~/.UMBRELLA/Share/.termux/ ~;
+      if test -d ~/.confi/lsd; then rm -r ~/.config/lsd &>/dev/null; fi
+      mv ~/.UMBRELLA/Share/lsd ~/.config;
+      mv ~/.UMBRELLA/Share/Hack.zip /data/data/com.termux/files/usr/share/fonts && unzip /data/data/com.termux/files/usr/share/fonts/Hack.zip;
+      rm /data/data/com.termux/files/usr/share/fonts/Hack.zip &>/dev/null;
+      if test -a ~/.termux/font.ttf; then mv ~/.termux/font.ttf ~/.termux/font.ttf.old; fi
+      cp /data/data/com.termux/files/usr/share/fonts/HackNerdFontMono-BoldItalic.ttf ~/.termux/font.ttf;
+      if test ! -a ~/.bashrc; then touch ~/.bashrc ; fi
+      chmod +x ~/.bashrc;
+      echo "echo -en \"\e[31mWARNING:\e[0m You are out of UMBRELLA CORPORATION | Some commands and tools could not be running.\n\"" >| ~/.bashrc;
+      echo -en "\e[36mInstallation Successfully\n"
+    }
+
+Oh-My-Zsh() {
+      echo -en "\e[36mInstalling oh-my-zsh...\n"
+      if test ! $(command -v zsh ) >/dev/null; then
+            yes|pkg install zsh >/dev/null;
+      fi
+      bash -c "$(curl -fsSL https://github.com/rlvilla/OhMyTmux/raw/main/ohmytmux.sh)"
+      git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions &>$PREFIX/var/log/Umbrella.log;
+      git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting &>$PREFIX/var/log/Umbrella.log;
+      git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf &>/dev/null;
+      ~/.fzf/install
+      git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k; &>/dev/null
+
+      echo "Setting oh-my-zsh following UMBRELLA instructions ... "
+      pip install Pygments &>$PREFIX/var/log/Umbrella.log;
+      if test -f ~/.zshrc; then mv ~/.zshrc ~/.zshrc.old."$(date +%d-%m-%Y_%H:%M:%S)" &>/dev/null; fi
+      if test -f $PREFIX/etc/zshrc; then mv $PREFIX/etc/zshrc $PREFIX/etc/zshrc.old."$(date +%d-%m-%Y_%H:%M:%S)"; fi
+      rm $PREFIX/etc/motd &>/dev/null;
+      mv ~/.UMBRELLA/oh-my-zsh/.zshrc ~;
+      mv ~/.UMBRELLA/oh-my-zsh/zshrc $PREFIX/etc;
+      cp ~/.UMBRELLA/oh-my-zsh/themes/* ~/.oh-my-zsh/themes && rm -rf ~/.UMBRELLA/oh-my-zsh;
+      echo -en "\e[36mInstallation Successfully\n"
+#      chsh -s zsh && zsh ;
+    }
+
+Python() {
+      yes|pkg install python3 python-pip ;
+      python -m pip --no-color --quiet --no-cache-dir install bpython ;
+      python -m pip --no-color --quiet --no-cache-dir install jedin ;
+    }
+
+Oh-My-Tmux() {
+      echo "Setting tmux following UMBRELLA instructions ... "
+      if test ! $(command -v tmux) >/dev/null; then
+            yes|pkg install tmux &>/dev/null;
+      fi
+      if test -d ~/.tmux; then mv ~/.tmux ~/.tmux.old."$(date +%d-%m-%Y_%H:%M:%S)"; fi
+      mkdir ~/.tmux
+      git clone --quiet https://github.com/gpakosz/.tmux ~/.tmux &>/dev/null;
+      if test -d ~/.tmux/plugins; then mv ~/.tmux/plugins ~/.tmux/plugins.old."$(date +%d-%m-%Y_%H:%M:%S)"; fi
+      git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm &>/dev/null;
+      rm ~/.tmux/.tmux.conf ~/.tmux/.tmux.conf.local &>/dev/null;
+      mv ~/.UMBRELLA/Share/.tmux.conf ~/.tmux;
+      mv ~/.UMBRELLA/Share/.tmux.conf ~/.tmux;
+      ln -s -f ~/.tmux/.tmux.conf ~
+      cp ~/.tmux/.tmux.conf.local ~;
+      tmux source ~/.tmux/.tmux.conf
+      echo -en "\e[36mInstallation Successfully\n"
+    }
+
+Vim() {
+      echo "Setting vim following UMBRELLA instructions ... "
+      if test ! $(command -v vim) >/dev/null; then
+            yes|apt-get install vim-python nodejs &>/dev/null;
+      fi;
+      if test -f ~/.vim; then mv ~/.vim ~/.vim.old."$(date +%d-%m-%Y_%H:%M:%S)"; fi
+      mv ~/.UMBRELLA/Share/.vimrc ~
+#      rm -rf ~/.UMBRELLA/Share
+      curl -fLo ~/.vim/autoload/plug.vim --create-dirs \https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim &>/dev/null;
+      vim +PlugInstall +PlugUpdate +q!
+      vim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-java +coc-nodejs +q!
+
+      if ["$(echo $?)" == "0"]; then
+            echo -en "\e[36mInstallation Successfully\n"
+      else
+            vim +PlugInstall +PlugUpdate +q!
+            vim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-nodejs +q!
+            echo -en "\e[36mInstallation Successfully\n"
+      fi
+    }
+
+Neovim() {
+      echo "Setting Neovim following UMBRELLA instructions ... "
+      if test ! $(command -v nvim ) >/dev/null; then
+            yes|apt-get install python-pynvim nodejs neovim &>/dev/null;
+      fi
+      if test -d ~/.config/nvim; then mv ~/.config/nvim ~/.config/nvim.opv."$(date +%d-%m-%Y_%H:%M:%S)" ; fi
+      mkdir ~/.config/nvim;
+      mv ~/.UMBRELLA/Share/init.vim ~/.config/nvim;
+      curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim &>/dev/null;
+      nvim +PlugInstall +PlugUpdate +q!
+      nvim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-java +coc-nodejs +q!
+      if ["$(echo $?)" == "0"]; then
+            echo -en "\e[36mInstallation Successfully\n"
+      else
+            nvim +PlugInstall +PlugUpdate +q!
+            nvim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-java +coc-nodejs +q!
+            echo -en "\e[36mInstallation Successfully\n"
+      fi
+}
+
+i-Haklab() {
+      if test ! $(command -v wget ) >/dev/null; then
+            yes|pkg install wget;
+      fi
+      if test ! $(command -v gnupg) >/dev/null; then
+            yes|pkg install gnupg;
+      fi
+      mkdir -p $PREFIX/etc/apt/sources.list.d;
+      wget https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/ivam3-termux-packages.list -O $PREFIX/etc/apt/sources.list.d/ivam3-termux-packages.list;
+      curl -fsSL "https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/dists/stable/public_key.gpg"|gpg --dearmor|tee "$PREFIX/etc/apt/trusted.gpg.d/ivam3.gpg" >/dev/null;
+      apt update >/dev/null && apt install i-haklab
+}
+
+[[ -n $1 ]] && {
+      case "$1" in
+            -u|UMBRELLA)
+                  UMBRELLA
+                  ;;
+            -p|Packages)
+                  Packages
+                  ;;
+            -z|Oh-my-zsh)
+                  Oh-My-Zsh
+                  ;;
+            -t|Oh-my-Tmux)
+                  Oh-My-Tmux
+                  ;;
+            -v|Vim)
+                  Vim
+                  ;;
+            -n|Neovim)
+                  Neovim
+                  ;;
+            -i|i-Haklab)
+                  i-Haklab
+                  ;;
+            Python)
+                  Python
+                  if ["$(eccho $?)" == "0"]; then
+                        echo -en "\e[36mInstallation Successfully\n";
+                  else
+                        echo -en "\e[31mE: \e[0mPackages functions. \n"
+                  fi
+                  ;;
+            *)
+                  echo -en "\e[31m(⋯☣)\e[0mInput package, run pkg2install <package>\n"
+                  ;;
+      esac
+}

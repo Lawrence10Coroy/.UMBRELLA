@@ -1,0 +1,19 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/nvim ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for neovim...\e[0m\n"
+    wget --tries=20 --quiet $iHDB/.config/nvim/nvim.zip -O ${HOME}/.config/nvim/nvim.zip
+    unzip -qo ${HOME}/.config/nvim/nvim.zip -d ${HOME}/.config/nvim/
+    rm -rf ${HOME}/.config/nvim/nvim.zip
+    npm install -g neovim bash-language-server pyright >/dev/null 2>/dev/null #neovim
+    pip --no-color --quiet --no-cache-dir install neovim
+    yes|pkg i lua-language-server >/dev/null 2>/dev/null
+    # Conf
+    nvim +x +x #+PlugInstall +PlugUpdate +CocInstall coc-clangd coc-sh coc    -jedi +x +x +x
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    nvim \e[0m\n"
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

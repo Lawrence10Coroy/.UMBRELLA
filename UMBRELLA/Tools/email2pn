@@ -1,0 +1,25 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/email2pn ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for email2pn...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install python
+    python3 -m pip install --upgrade pip &>/dev/null;
+    git clone https://github.com/martinvigo/email2phonenumber $PREFIX/opt/email2phonenumber
+    cd $PREFIX/opt/email2phonenumber
+    python3 -m pip install -r requirements.txt
+    touch $PREFIX/bin/email2pn
+    cat <<- Confg $PREFIX/bin/email2pn
+#!/bin/bash
+email2pn="/data/data/com.termux/files/usr/opt/email2phonenumber"
+cd \${email2pn}
+exec python3 "\${email2pn}/email2phonenumber.py" "\$@"
+Confg
+    chmod 711 $PREFIX/bin/email2pn
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    email2pn <argv>\e[0m\n"
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

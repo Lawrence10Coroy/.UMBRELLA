@@ -1,0 +1,18 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/nikto ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for nikto...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install perl
+    git clone https://github.com/sullo/nikto $PREFIX/opt/nikto
+    cd $PREFIX/opt/nikto/program
+    chmod 711 nikto.pl
+    ln -s $PREFIX/opt/nikto/program/nikto.pl $PREFIX/bin/nikto
+    chmod 711 $PREFIX/bin/nikto
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    nikto <argv>\e[0m\n";
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

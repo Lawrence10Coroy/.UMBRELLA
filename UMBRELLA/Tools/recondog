@@ -1,0 +1,25 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/recondog ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for recondog...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install python
+    python3 -m pip install --upgrade pip &>/dev/null;
+    git clone https://github.com/s0md3v/ReconDog $PREFIX/opt/ReconDog
+    cd $PREFIX/opt/ReconDog
+    python3 -m pip install -r requirements.txt &>/dev/null;
+    touch $PREFIX/bin/recondog
+    cat <<- Confg > $PREFIX/bin/recondog
+#!/bin/bash
+recondog="/data/data/com.termux/files/usr/opt/ReconDog"
+cd \${recondog}
+exec python3 "\${recondog}/dog" "\$@"
+Confg
+    chmod 711 $PREFIX/bin/recondog
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    recondog <argv>\e[0m\n"
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

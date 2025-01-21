@@ -1,0 +1,19 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/metagoofil ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for metagoofil...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install python
+    python3 -m pip install --upgrade pip &>/dev/null;
+    git clone https://github.com/opsdisk/metagoofil $PREFIX/opt/metagoofil
+    cd $PREFIX/opt/metagoofil
+    python3 -m pip install -r requirements.txt &>/dev/null;
+    ln -s $PREFIX/opt/metagoofil/metagoofil.py $PREFIX/bin/metagoofil
+    chmod 711 $PREFIX/bin/metagoofil
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    metagoofil <argv>\e[0m\n"
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

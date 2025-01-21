@@ -1,0 +1,58 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/beef-xss ]; then
+	echo -en "\e[1;4;38;5;253mInstalling dependencies for beef-xss...\e[0m\n"
+	yes|pkg update && pkg upgrade &>/dev/null;
+	yes|pkg install nodejs
+	yes|pkg install wget
+	UMBRELLA install metasploit
+	mkdir -p $PREFIX/etc/apt/sources.list.d
+	wget https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/ivam3-termux-packages.list -O $PREFIX/etc/apt/sources.list.d/ivam3-termux-packages.list
+	yes|apt update && apt upgrade &>/dev/null;
+	apt install beef
+	rm -rf $HOME/.local/share/beef
+  rm $PREFIX/bin/beef
+	rm -rf $PREFIX/etc/apt/sources.list.d
+	yes|apt update && apt upgrade &>/dev/null;
+	git clone https://github.com/beefproject/beef $PREFIX/opt/beef
+	cd $PREFIX/opt/beef
+	bundle install
+	rm config.yaml
+	rm extensions/social_engineering/mass_mailer/mass_mailer.rb
+	touch $PREFIX/bin/beef-xss
+	cat <<- Confg >$PREFIX/bin/beef-xss
+#!/bin/bash
+beef="/data/data/com.termux/files/usr/opt/beef"
+cd \${beef}
+exec ruby "\${beef}/beef" "\$@"
+Confg
+	chmod 711 $PREFIX/bin/beef-xss
+	wget https://raw.githubusercontent.com/Darkmux/phoenix-packages/main/tools/beef-xss.zip -O $PREFIX/etc/beef-xss.zip
+
+	cd $PREFIX/etc/
+	unzip beef-xss.zip
+	cd beef-xss
+	mv GeoIP $PREFIX/opt/beef
+	mv mass_mailer.rb $PREFIX/opt/beef/extensions/social_engineering/mass_mailer
+	mv config.yaml $PREFIX/opt/beef
+	mv metasploit.rb $PREFIX/opt/beef
+	cd ..
+	rm -rf beef-xss
+	rm -rf beef-xss.zip
+	beefUser="UMBRELLA"
+	beefPass="UMBRELLA"
+	echo -en "\e[1;4;38;5;253mUsername BEEf: \n"
+	read -r User
+	echo -en "\e[1;4;38;5;253mPassword BEEf: \n"
+	read -r Pass
+	sed -i "s!${beefUser}!${User}!g" $PREFIX/opt/beef/config.yaml
+	sed -i "s!${beefPass}!${Pass}!g" $PREFIX/opt/beef/config.yaml
+	sed -i "s!${beefUser}!${User}!g" $PREFIX/opt/beef/metasploit.rb
+	sed -i "s!${beefPass}!${Pass}!g" $PREFIX/opt/beef/metasploit.rb
+	printf "\e[1;38;5;253mDone!
+	Please Execute:
+
+	beef-xss <argv>\e[0m\n";
+else
+	echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

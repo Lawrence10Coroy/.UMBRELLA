@@ -1,0 +1,25 @@
+#!/usr/bin/bash
+#
+if [ ! -x $HOME/.config/fish/functions/i-Haklab.fish ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for i-Haklab...\e[0m\n"
+    rm -rf ${HOME}/.local/etc/fish
+    rm -rf ${HOME}/.config/fish
+    rm -rf ${HOME}/.config/omf
+    yes|pkg remove i-haklab &>/dev/null;
+    yes|pkg remove fish &>/dev/null;
+    yes|pkg update && pkg upgrade
+    yes|pkg install wget
+    mkdir -p $PREFIX/etc/apt/sources.list.d
+
+	  wget https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/ivam3-termux-packages.list -O $PREFIX/etc/apt/sources.list.d/ivam3-termux-packages.list
+
+    yes|apt update && apt upgrade &>/dev/null;
+    apt install i-haklab
+    pkg update i-haklab &>/dev/null;
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    i-Haklab <argv>\e[0m\n"
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

@@ -1,0 +1,27 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/vector ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for vector...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install python
+    python3 -m pip install --upgrade pip &>/dev/null;
+    python3 -m pip install Pillow
+    yes|pkg install python-pillow
+    git clone https://github.com/thesaderror/vector $PREFIX/opt/vector
+    cd $PREFIX/opt/vector
+    python3 -m pip install -r requirements.txt &>/dev/null;
+    touch $PREFIX/bin/vector
+    cat <<- Confg > $PREFIX/bin/vector
+#!/bin/bash
+vector="/data/data/com.termux/files/usr/opt/vector"
+cd \${vector}
+exec python3 "\${vector}/vector.py" "\$@"
+Confg
+    chmod 777 $PREFIX/bin/vector
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    vector <argv>\e[0m\n"
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

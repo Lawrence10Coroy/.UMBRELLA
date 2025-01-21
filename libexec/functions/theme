@@ -1,0 +1,50 @@
+#!/bin/bash
+#
+source ${HOME}/.UMBRELLA/UMBRELLA/variables
+source ${UMBRELLA}/functions
+Login=$(grep "theme" ${libexec}/UMBRELLA.login|tail -n 1)
+Help=$(grep "theme" ${libexec}/functions/UMBRELLA|tail -n 1)
+Passw=$(grep "theme" ${libexec}/functions/password|tail -n 1)
+
+Disable='#theme'
+Cyan='theme cyan'
+Red='theme red'
+Dark='theme dark'
+
+	[[ -z $1 ]] && {
+		printf "${yellow}For more help type ${green}UMBRELLA${yellow} [${red} -h${yellow} |${red} --help${yellow} ] for helpper UMBRELLA CORPORATION.${default}\n"
+	}
+	[[ -n $1 ]] && {
+	if [ $1 = '-c' ] || [ $1 = '--color' ]; then
+		case "$2" in
+			cyan)
+				sed -i "s|$Login|$Cyan|" ${libexec}/UMBRELLA.login
+				sed -i "s|$Help|$Cyan|" ${libexec}/functions/UMBRELLA
+				sed -i "s|$Passw|$Cyan|" ${libexec}/functions/password
+				;;
+			red)
+				sed -i "s|$Login|$Red|" ${libexec}/UMBRELLA.login
+				sed -i "s|$Help|$Red|" ${libexec}/functions/UMBRELLA
+				sed -i "s|$Passw|$Red|" ${libexec}/functions/password
+				;;
+			dark)
+				sed -i "s|$Login|$Dark|" ${libexec}/UMBRELLA.login
+				sed -i "s|$Help|$Dark|" ${libexec}/functions/UMBRELLA
+				sed -i "s|$Passw|$Dark|" ${libexec}/functions/password
+				;;
+			*)
+				printf "${red}(⋯☣)${yellow}Input theme color, run ${green}theme ${red}-c <color>${default}\n"
+				;;
+		esac
+	elif [ $1 = '-s' ] || [ $1 = '--set' ]; then
+		select opt in Enable Disable Exit
+		do
+			[[ $opt = Exit ]] && { exit 0; }
+			[[ $opt = Disable ]] && { sed -i "s|$Login|$Disable|" ${libexec}/UMBRELLA.login; }
+			[[ $opt = Enable ]] && { sed -i "s|$Login|$Cyan|" ${libexec}/UMBRELLA.login; }
+			break
+		done
+	else
+		about
+	fi
+}

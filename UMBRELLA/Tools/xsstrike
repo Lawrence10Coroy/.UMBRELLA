@@ -1,0 +1,19 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/xsstrike ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for xsstrike...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install python
+    python3 -m pip install --upgrade pip &>/dev/null;
+    git clone https://github.com/s0md3v/XSStrike $PREFIX/opt/XSStrike
+    cd $PREFIX/opt/XSStrike
+    python3 -m pip install -r requirements.txt &>/dev/null;
+    ln -s $PREFIX/opt/XSStrike/xsstrike.py $PREFIX/bin/xsstrike
+    chmod 711 $PREFIX/bin/xsstrike
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    xsstrike <argv>\e[0m\n"
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

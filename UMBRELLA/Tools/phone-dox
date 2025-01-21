@@ -1,0 +1,30 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/phone-dox ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for phone-dox...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install python
+    yes|pkg install wget
+    python3 -m pip install --upgrade pip &>/dev/null;
+    wget https://raw.githubusercontent.com/Darkmux/phoenix-packages/main/tools/Phone-dox.zip -O $PREFIX/tmp/Phone-dox.zip
+    cd $PREFIX/tmp
+    unzip Phone-dox.zip
+    mv Phone-dox $PREFIX/opt
+    rm -rf Phone-dox.zip
+    cd $PREFIX/opt/Phone-dox
+    python3 -m pip install -r requirements.txt &>/dev/null;
+    touch $PREFIX/bin/phone-dox
+    cat <<- Confg > $PREFIX/bin/phone-dox
+#!/bin/bash
+PhoneDox="/data/data/com.termux/files/usr/opt/Phone-dox"
+cd \${PhoneDox}
+exec python3 "\${PhoneDox}/phone.py" "\$@"
+Confg
+    chmod 711 $PREFIX/bin/phone-dox
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    phone-dox <argv>\e[0m\n"
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

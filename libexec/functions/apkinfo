@@ -1,0 +1,16 @@
+#!/bin/bash
+
+source ${HOME}/.UMBRELLA/UMBRELLA/variables
+source ${UMBRELLA}/functions
+
+[[ -z $1 ]] && { printf "${yellow}For more help type ${green}UMBRELLA${yellow} [${red}-h${yellow} |${red} --help${yellow} ] for helpper UMBRELLA CORPORATION.${default}\n";exit 0;}
+
+COMMANDS aapt aapt
+theme dark
+package=$(aapt dump badging "$*" | awk '/package/{gsub("name=|'"'"'","");  print $2}')
+activity=$(aapt dump badging "$*" | awk '/activity/{gsub("name=|'"'"'","");  print $2}')
+echo
+echo -en $green"   file :$yellow $1\n"
+echo -en $green"package :$yellow $package\n"
+echo -en $green"activity:$yellow ${activity}$default\n"
+

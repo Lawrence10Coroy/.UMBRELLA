@@ -1,0 +1,27 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/pwnedornot ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for pwnedornot...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install python
+    python3 -m pip install --upgrade pip &>/dev/null;
+    python3 -m pip install html2text
+    git clone https://github.com/thewhiteh4t/pwnedOrNot $PREFIX/opt/pwnedOrNot
+    cd $PREFIX/opt/pwnedOrNot
+    chmod 711 *.sh
+    bash install.sh
+    touch $PREFIX/bin/pwnedornot
+    cat <<- Confg > $PREFIX/bin/pwnedornot
+#!/bin/bash
+pwnedornot="/data/data/com.termux/files/usr/opt/pwnedOrNot"
+cd \${pwnedornot}
+exec python3 "\${pwnedornot}/pwnedornot.py" "\$@"
+Confg
+    chmod 711 $PREFIX/bin/pwnedornot
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    pwnedornot <argv>\e[0m\n"
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

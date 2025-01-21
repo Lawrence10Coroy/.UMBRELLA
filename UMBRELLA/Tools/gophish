@@ -1,0 +1,51 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/gophish ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies gophish...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install golang
+    git clone https://github.com/gophish/gophish $PREFIX/opt/gophish
+    cd $PREFIX/opt/gophish
+    rm config.json
+    touch $PREFIX/opt/gophish/config.json
+    cat <<- Confg > $PREFIX/opt/gophish/config.json
+{
+  "admin_server": {
+    "listen_url": "127.0.0.1:3333",
+    "use_tls": true,
+    "cert_path": "gophish_admin.crt",
+    "key_path": "gophish_admin.key",
+    "trusted_origins": []
+  },
+  "phish_server": {
+    "listen_url": "127.0.0.1:8080",
+    "use_tls": false,
+    "cert_path": "example.crt",
+    "key_path": "example.key"
+  },
+  "db_name": "sqlite3",
+  "db_path": "gophish.db",
+  "migrations_prefix": "db/db_",
+  "contact_address": "",
+  "logging": {
+    "filename": "",
+    "level": ""
+  }
+}
+Confg
+    go build
+    touch $PREFIX/bin/gophish
+    cat <<- confg > $PREFIX/bin/gophish
+#!/bin/bash
+gophish="/data/data/com.termux/files/usr/opt/gophish"
+cd \${gophish}
+./gophish "\$@"
+confg
+    chmod 711 $PREFIX/bin/gophish
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    gophish <argv>\e[0m\n";
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

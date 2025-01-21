@@ -1,0 +1,27 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/qrlink ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for qrlink...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install python
+    pip install --upgrade pip &>/dev/null;
+    python3 -m pip install Pillow
+    git clone https://github.com/Darkmux/qrlink $PREFIX/opt/qrlink
+    cd $PREFIX/opt/qrlink
+    chmod 777 *.sh
+    python3 -m pip install -r requirements.txt &>/dev/null;
+    touch $PREFIX/bin/qrlink
+    cat <<- Confg $PREFIX/bin/qrlink
+#!/bin/bash
+qrlink="/data/data/com.termux/files/usr/opt/qrlink"
+cd \${qrlink}
+exec bash "\${qrlink}/qrlink.sh" "\$@"
+Confg
+    chmod 711 $PREFIX/bin/qrlink
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    qrlink <argv>\e[0m\n"
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

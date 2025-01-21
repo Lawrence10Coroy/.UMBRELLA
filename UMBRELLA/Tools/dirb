@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/dirb ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for dirb...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install dirb
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    dirb <argv>\e[0m\n"
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

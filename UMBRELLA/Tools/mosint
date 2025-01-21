@@ -1,0 +1,18 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/mosint ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for mosint...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install golang
+    git clone https://github.com/alpkeskin/mosint $PREFIX/opt/mosint
+    cd $PREFIX/opt/mosint
+    go get && go build
+    ln -s $PREFIX/opt/mosint/mosint $PREFIX/bin/mosint
+    chmod 777 $PREFIX/bin/mosint
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    mosint <argv>\e[0m\n"
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

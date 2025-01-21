@@ -1,0 +1,52 @@
+#!/bin/bash
+
+source ${HOME}/.UMBRELLA/UMBRELLA/variables
+source ${UMBRELLA}/functions
+
+[[ -z $1 ]] && {
+  printf "${yellow}For more help type ${green}UMBRELLA${yellow} [ ${red}-h${yellow} | ${red}--help${yellow} ] for helpper UMBRELLA CORPORATION.${default}\n"
+}
+
+  [[ -n $1 ]] && {
+    touch ~/.UMBRELLA/UMBRELLA/.user
+  case "$1" in
+    -n|--new)
+      if [ -z "$(cat ~/.UMBRELLA/UMBRELLA/.user )" ]; then
+        while read -p "Input username: " user && printf "\n" && [[ -z $user ]]
+        do
+          continue
+        done;
+
+        echo "USER $user"|openssl enc -aes-256-cbc -md sha512 -a -pbkdf2 -iter 100000 \
+          -salt -pass pass:Secret@123# > ~/.UMBRELLA/UMBRELLA/.user;
+        echo -en "\e[36mUsername saved successfully.\n"
+        else
+          read -p "[Y/N] Do you want to change your username?: " opt && printf "\n"
+          [[ -z $opt ]] && { exit 0; }
+          [[ $opt == "n" ]] || [[ $opt == "N" ]] && { exit 0; }
+          [[ $opt == "y" ]] || [[ $opt == "Y" ]] && { while read -p "${yellow}Input username: ${default}" user && printf "\n" && [[ -z $user ]]
+            do
+              continue
+            done
+            echo "USER $user"|openssl enc -aes-256-cbc -md sha512 -a -pbkdf2 -iter 100000 \
+              -salt -pass pass:Secret@123# > ~/.UMBRELLA/UMBRELLA/.user
+            echo -en "\e[36mUsername saved successfully.\n"
+            }
+      fi
+      ;;
+    -r|--remove)
+      while read -p "[Y/N] Want to delete your username?: " opt && printf "\n" && [[ -z $opt ]]
+      do
+        continue
+      done
+      [[ $opt == "N" ]] || [[ $opt == "n" ]] && { exit 0; }
+      [[ $opt == "y" ]] || [[ $opt == "Y" ]] && {
+        rm ~/.UMBRELLA/UMBRELLA/.user 2>/dev/null;
+        echo -en "\e[36mUsername removed successfully\n"
+      }
+      ;;
+    *)
+      about
+      ;;
+  esac
+}

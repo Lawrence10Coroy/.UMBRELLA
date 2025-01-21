@@ -1,0 +1,24 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/ncshare ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for ncshare...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install nmap netcat-openbsd
+    git clone https://github.com/whitehacks00/ncshare $PREFIX/opt/ncshare
+    cd $PREFIX/opt/ncshare
+    chmod 711 *.sh
+    touch $PREFIX/bin/ncshare
+    cat <<- Confg > $PREFIX/bin/ncshare
+#!/bin/bash
+NCShare="/data/data/com.termux/files/usr/opt/ncshare"
+cd \${NCShare}
+exec bash "\${NCShare}/ncshare.sh" "\$@"
+Confg
+    chmod 711 $PREFIX/bin/ncshare
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    ncshare\e[0m\n"
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

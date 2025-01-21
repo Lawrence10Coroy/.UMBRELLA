@@ -1,0 +1,24 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/evilurl ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for evilurl...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install python
+    python3 -m pip install --upgrade pip &>/dev/null;
+    python3 -m pip install python-nmap python-whois
+    git clone https://github.com/UndeadSec/EvilURL $PREFIX/opt/EvilURL
+    touch $PREFIX/bin/evilurl
+    cat <<- Confg > $PREFIX/bin/evilurl
+#!/bin/bash
+evilurl="/data/data/com.termux/files/usr/opt/EvilURL"
+cd \${evilurl}
+exec python3 "\${evilurl}/evilurl.py" "\$@"
+Confg
+    chmod 711 $PREFIX/bin/evilurl
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    evilurl <argv>\e[0m\n"
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

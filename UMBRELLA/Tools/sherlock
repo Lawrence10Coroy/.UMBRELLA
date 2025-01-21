@@ -1,0 +1,28 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/sherlock ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for sherlock...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install python
+    python3 -m pip install --upgrade pip &>/dev/null;
+    yes|pkg install python-numpy
+    yes|pkg install python-numpy-static
+    MATHLIB="m" pip install pandas
+    git clone https://github.com/sherlock-project/sherlock $PREFIX/opt/sherlock
+    cd $PREFIX/opt/sherlock
+    python3 -m pip install -r requirements.txt &>/dev/null;
+    touch $PREFIX/bin/sherlock
+    cat <<- Confg > $PREFIX/bin/sherlock
+#!/bin/bash
+sherlock="/data/data/com.termux/files/usr/opt/sherlock/sherlock"
+cd \${sherlock}
+exec python3 "\${sherlock}/sherlock.py" "\$@"
+Confg
+    chmod 711 $PREFIX/bin/sherlock
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    sherlock <argv>\e[0m\n"
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

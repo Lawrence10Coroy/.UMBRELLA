@@ -1,0 +1,26 @@
+#!/usr/bin/bash
+#
+if [ ! -x $PREFIX/bin/phoneinfoga ]; then
+    echo -en "\e[1;4;38;5;253mInstalling dependencies for phoneinfoga...\e[0m\n"
+    yes|pkg update && pkg upgrade
+    yes|pkg install python
+    python3 -m pip install --upgrade pip &>/dev/null;
+    git clone https://github.com/Darkmux/PhoneInfoga $PREFIX/opt/PhoneInfoga
+    cd $PREFIX/opt/PhoneInfoga
+    python3 -m pip install -r requirements.txt &>/dev/null;
+    python3 -m pip install config
+    touch $PREFIX/bin/phoneinfoga
+    cat <<- Confg > $PREFIX/bin/phoneinfoga
+#!/bin/bash
+phoneinfoga="/data/data/com.termux/files/usr/opt/PhoneInfoga"
+cd \${phoneinfoga}
+exec python3 "\${phoneinfoga}/phoneinfoga.py" "\$@"
+Confg
+    chmod 711 $PREFIX/bin/phoneinfoga
+    printf "\e[1;38;5;253mDone!
+    Please Execute:
+
+    phoneinfoga <argv>\e[0m\n"
+else
+    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+fi

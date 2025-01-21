@@ -1,0 +1,455 @@
+#!/usr/bin/bash
+#
+source ${HOME}/.UMBRELLA/UMBRELLA/variables
+source ${UMBRELLA}/functions
+list=$(mktemp)
+
+HELP() { printf "${yellow}USAGE: ${green}tools${yellow} [ -l | -a | -i | -r ]
+	For more help type ${green}UMBRELLA ${yellow}[ ${red}-h${yellow} |${red} --help${yellow} ] for helpper UMBRELLA CORPORATION
+	  ☣OPTIONS:
+
+	${red}-l${yellow} ┆┄┄┄┄┄┄┆ ${red}--list${yellow}            ┆┅┅┅┅┅┅┆ Show list for banner.
+	${red}-a${yellow} ┆┄┄┄┄┄┄┆ ${red}--about   <tools>${yellow} ┆┅┅┅┅┅┅┆ For informations on tools or frameworks.
+	${red}-i${yellow} ┆┄┄┄┄┄┄┆ ${red}--install <tools>${yellow} ┆┅┅┅┅┅┅┆ Usage for change banner.
+	${red}-r${yellow} ┆┄┄┄┄┄┄┆ ${red}--remove  <tools>${yellow} ┆┅┅┅┅┅┅┆ Show list for banner. ${default}\n\n"; }
+
+  [[ -z $1 ]] && { HELP; exit 1;}
+	[[ -n $1 ]] && {
+		case $1 in
+			-h|--help)
+				HELP;
+				exit 0;
+	      ;;
+			-l|--list)
+				ls ${UMBRELLA}/Tools > $list
+				COMMANDS column util-linux
+				printf "${yellow}჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻\n${underline}To install/uninstall the tools run --> ${green}UMBRELLA ${red}install/remove <tools>${yellow}\n\n"
+				column $list
+				printf "\n჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻\n${default}"
+				rm $list
+				;;
+			-a|--about)
+				if test -f /data/data/com.termux/files/home/.UMBRELLA/UMBRELLA/Tools/.Readme/$2; then
+					bat --style=plain ${UMBRELLA}/Tools/.Readme/$2
+				else 
+					printf "${red}(⋯☣)${yellow}Input tools, run ${green}tools${red} -a <tools>${yellow} for informations on tools or frameworks${default}\n";
+				fi
+				;;
+			-i|--install)
+				if test -f /data/data/com.termux/files/home/.UMBRELLA/UMBRELLA/Tools/$2; then
+					bash /data/data/com.termux/files/home/.UMBRELLA/UMBRELLA/Tools/$2
+				else
+					printf "${red}(⋯☣)${yellow}Input tools, run ${green}tools ${red}-i <tools> ${yellow}for install.${default}\n";
+				fi
+				;;
+			-r|--remove)
+				removing="\e[1;4;38;5;253mRemoving $2...\e[0m\n"
+			  done="\e[1;38;5;253mDone!\nRemoval Complete\e[0m\n"
+				already="\e[1;4;38;5;253mPackage '$2' is not installed!, so not removed.\e[0m\n"
+				if test -x /data/data/com.termux/files/usr/bin/$2; then
+					case "$2" in
+						apktool)
+							echo -en $removing
+              yes|pkg uninstall apktool
+              yes|pkg uninstall apksigner
+              echo -en $done
+              ;;
+            aquatone)
+              echo -en $removing
+              gem uninstall aquatone
+              rm ${bin}/aquatone
+              ;;
+            arjun)
+							echo -en $removing
+							python3 -m pip uninstall arjun
+							echo $done
+							;;
+						beef-xss)
+							echo -en $removing
+							rm -rf ${opt}/beef                                                     rm ${bin}/beef-xss
+							yes|pkg remove beef
+							echo -en $done
+							;;
+						crunch)
+							echo -en $removing
+							yes|pkg uninstall crunch
+							echo -en $done
+							;;
+						cupp)
+							echo -en $removing
+							rm -rf ${opt}/cupp
+							rm ${bin}/cupp
+							echo -en $done
+							;;
+						dirb)
+							echo -en $removing
+							yes|pkg uninstall dirb
+							echo -en $done
+							;;
+						ecuador-id)
+							echo -en $removing
+							rm -rf ${opt}/Ecuador-ID
+							rm ${bin}/ecuador-id
+							echo -en $done
+							;;
+						email2pn)
+							echo -en $removing
+							rm -rf ${opt}/email2phonenumber
+							rm ${bin}/email2pn
+							echo -en $done
+							;;
+						evilurl)
+							echo -en $removing
+							rm -rf ${opt}/EvilURL
+							rm ${bin}/evilurl
+							echo -en $done
+							;;
+						exiftools)
+							echo -en $removing
+							yes|pkg uninstall exiftool
+							echo -en $done
+							;;
+						fbuserid)
+							echo -en $removing
+							rm -rf ${opt}/fbuserid
+							rm ${bin}/fbuserid
+							echo -en $done
+							;;
+						ghost)
+							echo -en $removing
+							python3 -m pip uninstall ghost
+							9echo -en $done
+							;;
+						gobuster)
+							echo -en $removing
+							yes|pgk remove golang
+							rm -rf ${opt}/gobuster
+							rm ${bin}/gobuster
+							echo -en $done
+							;;
+						gophish)
+							echo -en $removing
+							rm -rf ${opt}/gophish
+							rm ${bin}/gophish
+							echo -en $done
+							;;
+						h8mail)
+							echo -en $removing
+							python3 -m pip uninstall h8mail
+							echo -en $done
+							;;
+						hash-buster)
+							echo -en $removing
+							rm -rf ${opt}/Hash-Buster
+							rm ${bin}/buster
+							echo -en $done
+							;;
+						hash-id)
+							echo -en $removing
+							rm -rf ${opt}/hash-identifier
+							rm ${bin}/hash-id
+							echo -en $done
+							;;
+						hashcrypt)
+							echo -en $removing
+							rm -rf ${opt}/hashcrypt
+							rm ${bin}/hashcrypt
+							echo -en $done
+							;;
+						holehe)
+							echo -en $removing
+							python3 -m pip uninstall holehe
+							echo -en $done
+							;;
+						hydra)
+							echo -en $removing
+							rm -rf ${opt}/thc-hydra
+							rm ${bin}/hydra
+							echo -en $done
+							;;
+						i-Haklab)
+							echo -en $removing
+							yes|pkg remove i-haklab
+							yes|apt autoremove
+							echo -en $done
+							;;
+						infoga)
+							echo -en $removing
+							rm -rf ${opt}/Infoga
+							rm ${bin}/infoga
+							echo -en $done
+							;;
+						iphunter)
+							echo -en $removing
+							rm -rf ${opt}/iphunter
+							rm ${bin}/iphunter
+							echo -en $done
+							;;
+						john)
+							echo -en $removing
+							rm -rf ${opt}/john
+							rm ${PREFIX}/share/john
+							rm ${bin}/john
+							rm ${bin}/zip2john
+							rm ${bin}/rar2john
+							rm ${bin}/ssh2john
+							echo -en $done
+							;;
+						magmaosint)
+							echo -en $removing
+							rm -rf ${opt}/MagmaOsint
+							rm ${bin}/magmaosint
+							echo -en $done
+							;;
+						metagoofil)
+							echo -en $removing
+							rm -rf ${opt}/metagoofil
+							rm ${bin}/metagoofil
+							echo -en $done
+							;;
+						metasploit)
+							echo -en "\e[1;4;38;5;253mRemoving metasploit-framework...\e[0m\n"
+							yes|pkg uninstall ruby
+							rm -rf ${opt}/metasploit-framework
+							rm ${bin}/msfconsole
+							rm ${bin}/msfvenom
+							echo -en $done
+							;;
+						mosint)
+							echo -en $removing
+							rm -rf ${opt}/mosint
+							rm ${bin}/mosint
+							echo -en $done
+							;;
+						ncshare)
+							echo -en $removing
+							rm -rf ${opt}/ncshare
+							rm ${bin}/ncshare
+							echo -en $done
+							;;
+						neovim)
+							echo -en $removing
+							rm -rf ${HOME}/.config/nvim
+							npm uninstall neovim
+							echo -en $done
+							;;
+						netcat)
+							echo -en $removing
+							yes|pkg uninstall netcat-openbsd
+							echo -en $done
+							;;
+						nexfil)
+							echo -en $removing
+							rm -rf ${opt}/nexfil
+							rm ${bin}/nexfil
+							echo -en $done
+							;;
+						nikto)
+							echo -en $removing
+							rm -rf ${opt}/nikto
+							rm ${bin}/nikto
+							echo -en $done
+							;;
+						nmap)
+							echo -en $removing
+							rm -rf ${opt}/nmap-vulners
+							rm -rf ${opt}/scipag_vulscan
+							yes|pkg uninstall nmap
+							echo -en $done
+							;;
+						octosuite)
+							echo -en $removing
+							python3 -m pip uninstall octosuite
+							echo -en $done
+							;;
+						onionsearch)
+							echo -en $removing
+							python3 -m pip uninstall onionsearch
+							echo -en $done
+							;;
+						phone-dox)
+							echo -en $removing
+							rm -rf ${opt}/Phone-dox
+							rm ${bin}/phone-dox
+							echo -en $done
+							;;
+						phoneinfoga)
+							echo -en $removing
+							rm -rf ${opt}/PhoneInfoga
+							rm ${bin}/phoneinfoga
+							echo -en $done
+							;;
+						phonesploit)
+							echo -en "\e[1;4;38;5;253mRemoving phonesploit-pro...\e[0m\n"
+							rm -rf ${opt}/PhoneSploit-Pro
+							rm ${bin}/phonesploit
+							echo -en $done
+							;;
+						photon)
+							echo -en $removing
+							rm -rf ${opt}/Photon
+							rm ${bin}/photon
+							echo -en $done
+							;;
+						protosint)
+							echo -en $removing
+							rm -rf ${opt}/ProtOSINT
+							rm ${bin}/protosint
+							echo -en $done
+							;;
+						pwnedornot)
+							echo -en $removing
+							rm -rf ${opt}/pwnedOrNot
+							rm ${bin}/pwnedornot
+							echo -en $done
+							;;
+						qrlink)
+							echo -en $removing
+							rm -rf ${opt}/qrlink
+							rm ${bin}/qrlink
+							echo -en $done
+							;;
+						recon-ng)
+							echo -en $removing
+							rm -rf ${opt}/recon-ng
+							rm ${bin}/recon-ng
+							echo -en $done
+							;;
+						recondog)
+							echo -en $removing
+							rm -rf ${opt}/ReconDog
+							rm ${bin}/recondog
+							echo -en $done
+							;;
+						redhawk)
+							echo -en $removing
+							rm -rf ${opt}/RED_HAWK
+							rm ${bin}/redhawk
+							echo -en $done
+							;;
+						routersploit)
+							echo -en $removing
+							rm -rf ${opt}/routersploit
+							rm ${bin}/routersploit
+							echo -en $done
+							;;
+						saycheese)
+							echo -en $removing
+							rm -rf ${opt}/saycheese
+							rm ${bin}/saycheese
+							echo -en $done
+							;;
+						seeker)
+							echo -en $removing
+							rm -rf ${opt}/seeker
+							rm ${bin}/seeker
+							echo -en $done
+							;;
+						sherlock)
+							echo -en $removing
+							rm -rf ${opt}/sherlock
+							rm ${bin}/sherlock
+							echo -en $done
+							;;
+						shodan)
+							echo -en $removing
+							python3 -m pip uninstall shodan
+							echo -en $done
+							;;
+						sigit)
+							echo -en $removing
+							rm -rf ${opt}/SIGIT
+							rm ${bin}/sigit
+							echo -en $done
+							;;
+						slowloris)
+							echo -en $removing
+							rm -rf ${opt}/slowloris
+							rm ${bin}/slowloris
+							echo -en $done
+							;;
+						speedtest)
+							echo -en $removing
+							python3 -m pip uninstall speedtest-cli
+							echo -en $done
+							;;
+						sqlmap)
+							echo -en $removing
+							python3 -m pip uninstall sqlmap
+							echo -en $done
+							;;
+						sublist3r)
+							echo -en $removing
+							rm -rf ${opt}/Sublist3r
+							rm ${bin}/sublist3r
+							echo -en $done
+							;;
+						tmate)
+							echo -en $removing
+							yes|pkg uninstall tmate
+							echo -en $done
+							;;
+						translate)
+							echo -en "\e[1;4;38;5;253mRemoving translate-shell...\e[0m\n"
+							yes|pkg uninstall translate-shell
+							echo -en $done
+							;;
+						transwer)
+							echo -en $removing
+							rm -rf ${opt}/transwer
+							rm ${bin}/transwer
+							echo -en $done
+							;;
+						vector)
+							echo -en $removing
+							rm -rf ${opt}/vector
+							rm ${bin}/vector
+							echo -en $done
+							;;
+						vim)
+							echo -en $removing
+							rm -rf ${HOME}/.vim ${HOME}/.vimrc
+							yes|pkg uninstall vim vim-python
+							echo -en $done
+							;;
+						virustotal)
+							echo -en "\e[1;4;38;5;253mRemoving virustotal-cli...\e[0m\n"
+							yes|pkg uninstall virustotal-cli
+							echo -en $done
+							;;
+						weeman)
+							echo -en $removing
+							rm -rf ${opt}/weeman
+							rm ${bin}/weeman
+							echo -en $done
+							;;
+						whatweb)
+							echo -en $removing
+							rm -rf ${opt}/WhatWeb
+							rm ${bin}/whatweb
+							echo -en $done
+							;;
+						wortex)
+							echo -en $removing
+							rm -rf ${opt}/wortex
+							rm ${bin}/wortex
+							echo -en $done
+							;;
+						xsstrike)
+							echo -en $removing
+							rm -rf ${opt}/XSStrike
+							rm ${bin}/xsstrike
+							echo -en $done
+							;;
+						*)
+							printf "${red}(⋯☣)${yellow}Input tools, run ${green}tools ${red}-r <tools>${yellow} for uninstall.${default}\n";
+					esac
+				else
+					echo -en $already
+				fi
+				;;
+			*)
+				about
+				;;
+		esac
+	}
