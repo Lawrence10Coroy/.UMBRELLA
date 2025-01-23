@@ -12,6 +12,7 @@ For more help type ${green}UMBRELLA ${yellow}[ ${red}-h ${yellow}| ${red}--help 
             ${red}-p ${yellow}| ${red}Packages${yellow}   ┄┄┄┄┄┅┅┅┅┅┅┆ Set of open source tools adapted to the Android OS packaged in a .deb extension for exclusive use in Termux.
             ${red}-z ${yellow}| ${red}Oh-my-zsh${yellow}  ┄┄┄┄┄┅┅┅┅┅┅┆ The Zsh is a Unix shell that can be used as an interactive login shell and as a command interpreter for shell scripting.
             ${red}-t ${yellow}| ${red}Oh-my-Tmux${yellow} ┄┄┄┄┄┅┅┅┅┅┅┆ Tmux is a terminal multiplexer: it allows creating, accessing and controlling multiple terminals from a single screen.
+            ${red}P10K${yellow}            ┄┄┄┄┄┅┅┅┅┅┅┆ It is a plugin that allows you to customize the appearance of Zsh.
             ${red}-i ${yellow}| ${red}i-Haklab${yellow}   ┄┄┄┄┄┅┅┅┅┅┅┆ i-Haklab is a hacking laboratory for Termux that contains open source tools for osint, pentesting, scan/find vulnerabilities, exploitation and post-exploitation.
             ${red}-v ${yellow}| ${red}Vim${yellow}        ┄┄┄┄┄┅┅┅┅┅┅┆ Vim is an open source, free, cross-platform text editor.
             ${red}-n ${yellow}| ${red}Neovim${yellow}     ┄┄┄┄┄┅┅┅┅┅┅┆ Neovim is a highly customizable and extensible text editor, which is a fork of the Vim project.${default}
@@ -28,14 +29,8 @@ Packages() {
             yes|pkg install gnupg &>/dev/null;
       fi
       mkdir -p $PREFIX/etc/apt/sources.list.d
-      wget https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/ivam3-termux-packages.list -O $PREFIX/etc/apt/sources.list.d/ivam3-termux-packages.list
-      if [ "$(echo $?)" != "0" ]; then
-            echo -en "\e[31mE: \e[0mPackages functions. 1\n"
-      fi
-      curl -fsSL "https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/dists/stable/public_key.gpg"|gpg --dearmor|tee "$PREFIX/etc/apt/trusted.gpg.d/ivam3.gpg" >/dev/null
-      if [ "$(echo $?)" != "0" ]; then
-            echo -en "\e[31mE: \e[0mPackages functions. 2\n"
-      fi
+      wget https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/ivam3-termux-packages.list -O $PREFIX/etc/apt/sources.list.d/ivam3-termux-packages.list;
+      curl -fsSL "https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/dists/stable/public_key.gpg"|gpg --dearmor|tee "$PREFIX/etc/apt/trusted.gpg.d/ivam3.gpg" >/dev/null;
       apt update >/dev/null;
       echo -en "\e[36mInstallation Successfully\n"
 }
@@ -45,10 +40,12 @@ UMBRELLA() {
       chmod -R a+rx ~/.UMBRELLA
       mkdir -p $PREFIX/var/log && touch $PREFIX/var/log/Umbrella.log
       apt update && yes|pkg upgrade;
-      yes|apt-get install tree tealdeer lsd zsh git curl gnupg tmux vim-python nodejs python-pynvim neovim openjdk-17;
+      yes|apt-get install tree tealdeer lsd zsh git curl gnupg tmux vim-python nodejs python-pynvim neovim openjdk-17 unzip;
       tldr --update;
+      git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+      ~/.fzf/install
       echo "Setting UMBRELLA following instructions ... "
-      if test -ds ~/.termux; then mv ~/.termux ~/.termux.old &>/dev/null; fi
+      if test -d ~/.termux; then mv ~/.termux ~/.termux.old &>/dev/null; fi
       mv ~/.UMBRELLA/Share/.termux/ ~;
       if test -d ~/.confi/lsd; then rm -r ~/.config/lsd &>/dev/null; fi
       mv ~/.UMBRELLA/Share/lsd ~/.config;
@@ -56,7 +53,7 @@ UMBRELLA() {
       rm /data/data/com.termux/files/usr/share/fonts/Hack.zip &>/dev/null;
       if test -a ~/.termux/font.ttf; then mv ~/.termux/font.ttf ~/.termux/font.ttf.old; fi
       cp /data/data/com.termux/files/usr/share/fonts/HackNerdFontMono-BoldItalic.ttf ~/.termux/font.ttf;
-      if test ! -a ~/.bashrc; then touch ~/.bashrc ; fi
+      if [ ! -f ~/.bashrc ]; then touch ~/.bashrc ; fi
       chmod +x ~/.bashrc;
       echo "echo -en \"\e[31mWARNING:\e[0m You are out of UMBRELLA CORPORATION | Some commands and tools could not be running.\n\"" >| ~/.bashrc;
       echo -en "\e[36mInstallation Successfully\n"
@@ -70,9 +67,6 @@ Oh-My-Zsh() {
       bash -c "$(curl -fsSL https://github.com/rlvilla/OhMyTmux/raw/main/ohmytmux.sh)"
       git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions &>$PREFIX/var/log/Umbrella.log;
       git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting &>$PREFIX/var/log/Umbrella.log;
-      git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf &>/dev/null;
-      ~/.fzf/install
-      git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k; &>/dev/null
 
       echo "Setting oh-my-zsh following UMBRELLA instructions ... "
       pip install Pygments &>$PREFIX/var/log/Umbrella.log;
@@ -91,6 +85,14 @@ Python() {
       python -m pip --no-color --quiet --no-cache-dir install bpython ;
       python -m pip --no-color --quiet --no-cache-dir install jedin ;
     }
+
+P10K() {
+      if test ! $( command -v p10k ) >/dev/null; then
+        git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k;
+      else
+        echo -en "\e[0;34mAlready Installed!."
+      fi
+ }
 
 Oh-My-Tmux() {
       echo "Setting tmux following UMBRELLA instructions ... "
@@ -118,7 +120,6 @@ Vim() {
       fi;
       if test -f ~/.vim; then mv ~/.vim ~/.vim.old."$(date +%d-%m-%Y_%H:%M:%S)"; fi
       mv ~/.UMBRELLA/Share/.vimrc ~
-#      rm -rf ~/.UMBRELLA/Share
       curl -fLo ~/.vim/autoload/plug.vim --create-dirs \https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim &>/dev/null;
       vim +PlugInstall +PlugUpdate +q!
       vim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-java +coc-nodejs +q!
@@ -187,6 +188,9 @@ i-Haklab() {
                   ;;
             -i|i-Haklab)
                   i-Haklab
+                  ;;
+            p10k)
+                  P10K
                   ;;
             Python)
                   Python

@@ -56,6 +56,8 @@ helpper() {
                  ✲ Commands ✲
    COMMANDS             ∵           DESCRIPTION$D
   ❉ ${green}archivos${yellow}      ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ File management of your Android.
+  ❉ ${green}distro${yellow}       ┄┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Utility that allows you to run a Linux distribution on an Android device without requiring root access.
+  ❉ ${green}distroX11${yellow}    ┄┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Utility that lets you run your Linux distribution in a desktop environment.
   ❉ ${green}pkg2install${yellow}   ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ About packages provided by UMBRELLA CORPORATION.
   ❉ ${green}apkinf${yellow}        ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Provides information on phone applications.
   ❉ ${green}lock${yellow}          ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇  Block termux.

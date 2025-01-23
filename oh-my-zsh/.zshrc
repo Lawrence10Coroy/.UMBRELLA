@@ -1,13 +1,8 @@
 #   CONFIGURATION UMBRELLA
 #   AUTOR:  LAWRENCE COROY
 
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
 POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
-#POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
-source ~/powerlevel10k/powerlevel10k.zsh-theme
+
 # If you come from bash you might have to change your $PATH.
 PATH=$HOME/bin:/usr/local/bin:$PATH
 export MANPATH="/usr/local/man:$MANPATH"
@@ -44,6 +39,7 @@ plugins=(
   )
 
 ZSH_TMUX_AUTOSTART=true
+ZSH_THEME="Umbrella_red"
 source $ZSH/oh-my-zsh.sh
 
 # You may need to manually set your language environment
@@ -110,6 +106,46 @@ function apkinfo() {
   bash ~/.UMBRELLA/libexec/functions/apkinfo "$@";
 }
 
+function distroX11() {
+  if test ! $(command -v proot-distro) >/dev/null; then
+    echo -en "\e[0;34mRun pkg install proot-distro\e[0m\n"
+  fi
+
+  a=$(mktemp);
+  if [ -s /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs ]; then
+    command ls /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs > $a;
+  fi
+
+  b="$(cat $a | awk '{print $1}')";
+  if [ -s /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${b}/home ]; then
+    command ls /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${b}/home > $a;
+    b="$(cat $a | awk '{print $1}')";
+
+# Kill open X11 processes
+    kill -9 $(pgrep -f "termux.x11") 2>/dev/null;
+#Enable PulseAudio over Network
+    pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1
+#Prepare termux-x11 session
+    export XDG_RUNTIME_DIR=${TMPDIR}
+    termux-x11 :0 >/dev/null &
+# Wait a bit until termux-x11 gets started.
+    sleep 3
+#Launch Termux X11 main activity
+    am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity > /dev/null 2>&1
+    sleep 1
+# Login in PRoot Environment. Do some initialization for PulseAudio, /tmp directory
+# and run XFCE4 as user.
+# See also: https://github.com/termux/proot-distro
+# Argument -- acts as terminator of proot-distro login options processing.
+# All arguments behind it would not be treated as options of PRoot Distro.
+    proot-distro login debian --shared-tmp -- /bin/bash -c 'export PULSE_SERVER=127.0.0.1 && export XDG_RUNTIME_DIR=${TMPDIR} && su - '${b}' -c "env DISPLAY=:0 startxfce4"'
+    exit 0;
+  else
+    echo -en "\e[0;34mYou have to install Termux:X11 apk.\e[0m\n"
+  fi
+  exec rm ${a} &>/dev/null;
+}
+
 function df() {
   if test ! $(command -v duf) 1>/dev/null; then
     yes|pkg install duf >/dev/null;
@@ -119,6 +155,29 @@ function df() {
 
 function du() {
   command du -hP $1;
+}
+
+function distro() {
+  if test ! $(command -v proot-distro) >/dev/null; then
+    echo -en "\e[0;34mRun pkg install proot-distro\e[0m\n"
+  fi
+
+  a=$(mktemp);
+  if [ -s /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs ]; then
+    command ls /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs > $a;
+  fi
+
+  b="$(cat $a | awk '{print $1}')";
+  if [ -s /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${b}/home ]; then
+    command ls /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${b}/home > $a;
+    b="$(cat $a | awk '{print $1}')";
+    exec proot-distro login debian --user ${b};
+  else
+    echo -en "\e[0;34mYou have to install a distribution.\e[0m\n"
+  fi
+
+  exec rm ${a} &>/dev/null;
+
 }
 
 function localhost() {
@@ -173,6 +232,5 @@ if [ -x /data/data/com.termux/files/usr/libexec/termux/command-not-found ]; then
              }
 fi
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
