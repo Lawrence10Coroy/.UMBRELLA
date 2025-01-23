@@ -52,8 +52,6 @@ export LANG=en_US.UTF-8
    export EDITOR='nvim'
  fi
 
-
-
 # ALIAS:   
 alias ll='lsd -lh --group-dirs=first'
 alias la='lsd -a --group-dirs=first'
@@ -71,9 +69,7 @@ alias vim="nvim"
 alias cl="clear"
 alias fzf-lovely="fzf-lovely h"
 
-#function
-#
-
+#FUNCTIONS:
 function man() {
     env \
     LESS_TERMCAP_mb=$'\e[01;31m' \
@@ -85,6 +81,7 @@ function man() {
     LESS_TERMCAP_us=$'\e[01;32m' \
     /usr/bin/man $@
 }
+
 function fzf-lovely(){                                                                                                                                            if [ "$1" = "h" ]; then                                                            fzf -m --reverse --preview-window down:20 --preview '[[ $(file --mime {}) =~ binary ]] &&
                     echo {} is a binary file ||                                                     (bat --style=numbers --color=always {} ||
                       highlight -O ansi -l {} ||                                                     coderay {} ||
@@ -108,7 +105,7 @@ function apkinfo() {
 
 function distroX11() {
   if test ! $(command -v proot-distro) >/dev/null; then
-    echo -en "\e[0;34mRun pkg install proot-distro\e[0m\n"
+    echo -en "\e[0;33mRun pkg install proot-distro\e[0m\n"
   fi
 
   a=$(mktemp);
@@ -141,7 +138,7 @@ function distroX11() {
     proot-distro login debian --shared-tmp -- /bin/bash -c 'export PULSE_SERVER=127.0.0.1 && export XDG_RUNTIME_DIR=${TMPDIR} && su - '${b}' -c "env DISPLAY=:0 startxfce4"'
     exit 0;
   else
-    echo -en "\e[0;34mYou have to install Termux:X11 apk.\e[0m\n"
+    echo -en "\e[0;334mYou have to install Termux:X11 apk.\e[0m\n"
   fi
   exec rm ${a} &>/dev/null;
 }
@@ -159,7 +156,7 @@ function du() {
 
 function distro() {
   if test ! $(command -v proot-distro) >/dev/null; then
-    echo -en "\e[0;34mRun pkg install proot-distro\e[0m\n"
+    echo -en "\e[0;33mRun pkg install proot-distro\e[0m\n"
   fi
 
   a=$(mktemp);
@@ -173,7 +170,7 @@ function distro() {
     b="$(cat $a | awk '{print $1}')";
     exec proot-distro login debian --user ${b};
   else
-    echo -en "\e[0;34mYou have to install a distribution.\e[0m\n"
+    echo -en "\e[0;33mYou have to install a distribution.\e[0m\n"
   fi
 
   exec rm ${a} &>/dev/null;

@@ -21,7 +21,6 @@ For more help type ${green}UMBRELLA ${yellow}[ ${red}-h ${yellow}| ${red}--help 
 
 Packages() {
       echo "Installing packages ... "
-      apt update && yes|pkg upgrade &>/dev/null;
       if test ! $(command -v wget) >/dev/null; then
             yes|pkg install wget &>/dev/null;
       fi
@@ -31,7 +30,7 @@ Packages() {
       mkdir -p $PREFIX/etc/apt/sources.list.d
       wget https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/ivam3-termux-packages.list -O $PREFIX/etc/apt/sources.list.d/ivam3-termux-packages.list;
       curl -fsSL "https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/dists/stable/public_key.gpg"|gpg --dearmor|tee "$PREFIX/etc/apt/trusted.gpg.d/ivam3.gpg" >/dev/null;
-      apt update >/dev/null;
+      apt update &>/dev/null;
       echo -en "\e[36mInstallation Successfully\n"
 }
 
@@ -39,7 +38,6 @@ UMBRELLA() {
       echo "Installing UMBRELLA CORPORATION ... "
       chmod -R a+rx ~/.UMBRELLA
       mkdir -p $PREFIX/var/log && touch $PREFIX/var/log/Umbrella.log
-      apt update && yes|pkg upgrade;
       yes|apt-get install tree tealdeer lsd zsh git curl gnupg tmux vim-python nodejs python-pynvim neovim openjdk-17 unzip;
       tldr --update;
       git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf

@@ -3,13 +3,13 @@
 source ${HOME}/.UMBRELLA/UMBRELLA/functions
 source ${UMBRELLA}/variables
    [[ -z $1 ]] && {
-   theme cyan;
+   theme red;
    helpper;
    exit 1;
  }
    [[ -n $1 ]] && {
    if [ $1 = '-h' ] || [ $1 = '--help' ]; then
-theme cyan
+theme red
      helpper;
      exit 0;
    elif [ $1 = '-v' ] || [ $1 = '--version' ]; then
