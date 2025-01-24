@@ -17,7 +17,6 @@ export ZSH="$HOME/.oh-my-zsh"
 SAVEHIST=1000
 HISTFILE=~/.zsh_history
 
-
 # Uncomment the following line to disable colors in ls.
 DISABLE_LS_COLORS="true"
 
@@ -53,16 +52,14 @@ export LANG=en_US.UTF-8
  fi
 
 # ALIAS:   
-alias ll='lsd -lh --group-dirs=first'
-alias la='lsd -a --group-dirs=first'
-alias l='lsd --group-dirs=first'
-alias lla='lsd -lha --group-dirs=first'
-alias ls="lsd -a --group-dirs=last"
+alias ls='lsd --group-dirs=first'
+alias lsa='lsd -a --group-dirs=first'
+alias l='lsd -lh --group-dirs=first'
+alias ll='lsd -lha --group-dirs=first'
 alias bat="bat -f --theme 'GitHub'"
 alias ipa="ip -brief a"
 alias getip="wget http://checkip.dyndns.org/ -O - -o /dev/null | cut -d: -f 2 | cut -d\< -f 1 | sed 's/ //g'"
 alias hg="history | grep -i"
-
 alias cat="/data/data/com.termux/files/usr/bin/bat --style=plain"
 alias can="/data/data/com.termux/files/usr/bin/cat"
 alias vim="nvim"

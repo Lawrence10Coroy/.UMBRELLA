@@ -122,7 +122,7 @@ Vim() {
       vim +PlugInstall +PlugUpdate +q!
       vim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-java +coc-nodejs +q!
 
-      if ["$(echo $?)" == "0"]; then
+      if [ "$(echo $?)" == "0" ]; then
             echo -en "\e[36mInstallation Successfully\n"
       else
             vim +PlugInstall +PlugUpdate +q!
@@ -142,7 +142,7 @@ Neovim() {
       curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim &>/dev/null;
       nvim +PlugInstall +PlugUpdate +q!
       nvim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-java +coc-nodejs +q!
-      if ["$(echo $?)" == "0"]; then
+      if [ "$(echo $?)" == "0" ]; then
             echo -en "\e[36mInstallation Successfully\n"
       else
             nvim +PlugInstall +PlugUpdate +q!
@@ -192,7 +192,7 @@ i-Haklab() {
                   ;;
             Python)
                   Python
-                  if ["$(eccho $?)" == "0"]; then
+                  if [ "$(echo $?)" == "0" ]; then
                         echo -en "\e[36mInstallation Successfully\n";
                   else
                         echo -en "\e[31mE: \e[0mPackages functions. \n"
