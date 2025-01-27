@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #AUTOR: LAWRENCE COROY
-source ${HOME}/.UMBRELLA/UMBRELLA/variables
+source ${HOME}/.UMBRELLA/UMBRELLA/variables >/de/null 2>&1;
 
 [[ -z $1 ]] && {
       printf "${yellow}USE: ${green}pkg2install ${red}<packages> ${yellow}to install a package providing UMBRELLA.
@@ -20,7 +20,7 @@ For more help type ${green}UMBRELLA ${yellow}[ ${red}-h ${yellow}| ${red}--help 
 }
 
 Packages() {
-      echo "Installing packages ... "
+      echo -en "\e[0;36mInstalling packages ... \e[0m\n"
       if test ! $(command -v wget) >/dev/null; then
             yes|pkg install wget &>/dev/null;
       fi
@@ -31,26 +31,26 @@ Packages() {
       wget https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/ivam3-termux-packages.list -O $PREFIX/etc/apt/sources.list.d/ivam3-termux-packages.list;
       curl -fsSL "https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/dists/stable/public_key.gpg"|gpg --dearmor|tee "$PREFIX/etc/apt/trusted.gpg.d/ivam3.gpg" >/dev/null;
       apt update &>/dev/null;
-      echo -en "\e[36mInstallation Successfully\n"
+      echo -en "\e[0;36mInstallation Successfully\e[0m\n"
 }
 
 UMBRELLA() {
-      echo "Installing UMBRELLA CORPORATION ... "
-      chmod -R a+rx ~/.UMBRELLA
+      echo -en "\e[0;36mInstalling UMBRELLA CORPORATION ... \e[0m\n"
       mkdir -p $PREFIX/var/log && touch $PREFIX/var/log/Umbrella.log
       yes|apt-get install tree tealdeer lsd zsh git curl gnupg tmux vim-python nodejs python-pynvim neovim openjdk-17 unzip;
       tldr --update;
       git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
       ~/.fzf/install
-      echo "Setting UMBRELLA following instructions ... "
+      echo -en "\e[0;36mSetting UMBRELLA following instructions ... \e[0m\n"
       if test -d ~/.termux; then mv ~/.termux ~/.termux.old &>/dev/null; fi
       mv ~/.UMBRELLA/Share/.termux/ ~;
       if test -d ~/.confi/lsd; then rm -r ~/.config/lsd &>/dev/null; fi
       mv ~/.UMBRELLA/Share/lsd ~/.config;
-      mv ~/.UMBRELLA/Share/Hack.zip /data/data/com.termux/files/usr/share/fonts && unzip /data/data/com.termux/files/usr/share/fonts/Hack.zip;
-      rm /data/data/com.termux/files/usr/share/fonts/Hack.zip &>/dev/null;
+      if test ! -d /data/data/com.termux/files/usr/share/font;then mkdir /data/data/com.termux/files/usr/share/font; fi
+      mv ~/.UMBRELLA/Share/Hack.zip /data/data/com.termux/files/usr/share/font && unzip /data/data/com.termux/files/usr/share/font/Hack.zip;
+      rm /data/data/com.termux/files/usr/share/font/Hack.zip &>/dev/null;
       if test -a ~/.termux/font.ttf; then mv ~/.termux/font.ttf ~/.termux/font.ttf.old; fi
-      cp /data/data/com.termux/files/usr/share/fonts/HackNerdFontMono-BoldItalic.ttf ~/.termux/font.ttf;
+      cp /data/data/com.termux/files/usr/share/font/HackNerdFont-Italic.ttf ~/.termux/font.ttf;
       if [ ! -f ~/.bashrc ]; then touch ~/.bashrc ; fi
       chmod +x ~/.bashrc;
       echo "echo -en \"\e[31mWARNING:\e[0m You are out of UMBRELLA CORPORATION | Some commands and tools could not be running.\n\"" >| ~/.bashrc;
@@ -58,24 +58,21 @@ UMBRELLA() {
     }
 
 Oh-My-Zsh() {
-      echo -en "\e[36mInstalling oh-my-zsh...\n"
+      echo -en "\e[36mInstalling oh-my-zsh ...\e[0m\n"
       if test ! $(command -v zsh ) >/dev/null; then
-            yes|pkg install zsh >/dev/null;
+            yes|pkg install zsh;
       fi
-      bash -c "$(curl -fsSL https://github.com/rlvilla/OhMyTmux/raw/main/ohmytmux.sh)"
       git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions &>$PREFIX/var/log/Umbrella.log;
       git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting &>$PREFIX/var/log/Umbrella.log;
-
-      echo "Setting oh-my-zsh following UMBRELLA instructions ... "
+      echo -en "\e[0;36mSetting oh-my-zsh following UMBRELLA instructions ... \e[0m\n"
       pip install Pygments &>$PREFIX/var/log/Umbrella.log;
       if test -f ~/.zshrc; then mv ~/.zshrc ~/.zshrc.old."$(date +%d-%m-%Y_%H:%M:%S)" &>/dev/null; fi
       if test -f $PREFIX/etc/zshrc; then mv $PREFIX/etc/zshrc $PREFIX/etc/zshrc.old."$(date +%d-%m-%Y_%H:%M:%S)"; fi
-      rm $PREFIX/etc/motd &>/dev/null;
+      rm $PREFIX/etc/motd >/dev/null 2>&1;
       mv ~/.UMBRELLA/oh-my-zsh/.zshrc ~;
       mv ~/.UMBRELLA/oh-my-zsh/zshrc $PREFIX/etc;
       cp ~/.UMBRELLA/oh-my-zsh/themes/* ~/.oh-my-zsh/themes && rm -rf ~/.UMBRELLA/oh-my-zsh;
-      echo -en "\e[36mInstallation Successfully\n"
-#      chsh -s zsh && zsh ;
+      echo -en "\e[36mInstallation Successfully\e[0m\n"
     }
 
 Python() {
@@ -88,27 +85,19 @@ P10K() {
       if test ! $( command -v p10k ) >/dev/null; then
         git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k;
       else
-        echo -en "\e[0;34mAlready Installed!."
+        echo -en "\e[0;34mAlready Installed!.\e[0m\n"
       fi
  }
 
 Oh-My-Tmux() {
-      echo "Setting tmux following UMBRELLA instructions ... "
+      echo -en "\e[0;36mSetting tmux following UMBRELLA instructions ... \e[0m\n"
       if test ! $(command -v tmux) >/dev/null; then
             yes|pkg install tmux &>/dev/null;
       fi
-      if test -d ~/.tmux; then mv ~/.tmux ~/.tmux.old."$(date +%d-%m-%Y_%H:%M:%S)"; fi
-      mkdir ~/.tmux
-      git clone --quiet https://github.com/gpakosz/.tmux ~/.tmux &>/dev/null;
-      if test -d ~/.tmux/plugins; then mv ~/.tmux/plugins ~/.tmux/plugins.old."$(date +%d-%m-%Y_%H:%M:%S)"; fi
-      git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm &>/dev/null;
-      rm ~/.tmux/.tmux.conf ~/.tmux/.tmux.conf.local &>/dev/null;
-      mv ~/.UMBRELLA/Share/.tmux.conf ~/.tmux;
-      mv ~/.UMBRELLA/Share/.tmux.conf ~/.tmux;
-      ln -s -f ~/.tmux/.tmux.conf ~
-      cp ~/.tmux/.tmux.conf.local ~;
-      tmux source ~/.tmux/.tmux.conf
-      echo -en "\e[36mInstallation Successfully\n"
+      if test -d ~/.tmux; then mv ~/.tmux ~/.tmux.old."$(date +%d-%m-%Y_%H:%M:%S)"; mv ~/.tmux.conf ~/.tmux.conf.old."$(date +%d-%m-%Y_%H:%M:%S)"; fi
+      bash -c "$(curl -fsSL https://github.com/rlvilla/OhMyTmux/raw/main/ohmytmux.sh)"
+      mv ~/.UMBRELLA/Share/.tmux.conf ~;
+      echo -en "\e[36mInstallation Successfully\e[0m\n"
     }
 
 Vim() {
@@ -123,16 +112,16 @@ Vim() {
       vim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-java +coc-nodejs +q!
 
       if [ "$(echo $?)" == "0" ]; then
-            echo -en "\e[36mInstallation Successfully\n"
+            echo -en "\e[36mInstallation Successfully\e[0m\n"
       else
             vim +PlugInstall +PlugUpdate +q!
             vim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-nodejs +q!
-            echo -en "\e[36mInstallation Successfully\n"
+            echo -en "\e[36mInstallation Successfully\e[0m\n"
       fi
     }
 
 Neovim() {
-      echo "Setting Neovim following UMBRELLA instructions ... "
+      echo -en "\e[0;36mSetting Neovim following UMBRELLA instructions ... \e[0m\n"
       if test ! $(command -v nvim ) >/dev/null; then
             yes|apt-get install python-pynvim nodejs neovim &>/dev/null;
       fi
@@ -143,11 +132,11 @@ Neovim() {
       nvim +PlugInstall +PlugUpdate +q!
       nvim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-java +coc-nodejs +q!
       if [ "$(echo $?)" == "0" ]; then
-            echo -en "\e[36mInstallation Successfully\n"
+            echo -en "\e[36mInstallation Successfully\e[0m\n"
       else
             nvim +PlugInstall +PlugUpdate +q!
             nvim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-java +coc-nodejs +q!
-            echo -en "\e[36mInstallation Successfully\n"
+            echo -en "\e[36mInstallation Successfully\e[0m\n"
       fi
 }
 
@@ -193,13 +182,13 @@ i-Haklab() {
             Python)
                   Python
                   if [ "$(echo $?)" == "0" ]; then
-                        echo -en "\e[36mInstallation Successfully\n";
+                        echo -en "\e[36mInstallation Successfully\e[0m\n";
                   else
-                        echo -en "\e[31mE: \e[0mPackages functions. \n"
+                        echo -en "\e[31mE: \e[0mPackages functions. \e[0m\n"
                   fi
                   ;;
             *)
-                  echo -en "\e[31m(⋯☣)\e[0mInput package, run pkg2install <package>\n"
+                  echo -en "\e[31m(⋯☣)\e[0mInput package, run pkg2install <package>\e[0m\n"
                   ;;
       esac
 }
