@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #AUTOR: LAWRENCE COROY
-source ${HOME}/.UMBRELLA/UMBRELLA/variables >/de/null 2>&1;
+source ${HOME}/.UMBRELLA/UMBRELLA/variables >/dev/null 2>&1;
 
 [[ -z $1 ]] && {
       printf "${yellow}USE: ${green}pkg2install ${red}<packages> ${yellow}to install a package providing UMBRELLA.
