@@ -84,6 +84,9 @@ Python() {
 P10K() {
       if test ! $( command -v p10k ) >/dev/null; then
         git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k;
+        echo 'source ~/powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
+        echo -en "\e[36mInstallation Successfully\e[0m\n"
+        echo -en "\e[36m;Run \e[0;32mp10k \e[0;31m;configure\e[0m\n"
       else
         echo -en "\e[0;34mAlready Installed!.\e[0m\n"
       fi
