@@ -8,14 +8,17 @@ source ${HOME}/.UMBRELLA/UMBRELLA/variables >/dev/null 2>&1;
 For more help type ${green}UMBRELLA ${yellow}[ ${red}-h ${yellow}| ${red}--help ${yellow}] for helpper UMBRELLA CORPORATION.
 
             PACKAGES:
-            ${red}-u ${yellow}| ${red}UMBRELLA${yellow}   ┄┄┄┄┄┅┅┅┅┅┅┆
-            ${red}-p ${yellow}| ${red}Packages${yellow}   ┄┄┄┄┄┅┅┅┅┅┅┆ Set of open source tools adapted to the Android OS packaged in a .deb extension for exclusive use in Termux.
+            ${red}Distro${yellow}          ┄┄┄┄┄┅┅┅┅┅┅┆ Utility that allows you to run a Linux distribution on an Android device without requiring root access.
+            ${red}-i ${yellow}| ${red}i-Haklab${yellow}   ┄┄┄┄┄┅┅┅┅┅┅┆ i-Haklab is a hacking laboratory for Termux that contains open source tools for osint, pentesting, scan/find vulnerabilities      , exploitation and post-exploitation.
+            ${red}-n ${yellow}| ${red}Neovim${yellow}     ┄┄┄┄┄┅┅┅┅┅┅┆ Neovim is a highly customizable and extensible text editor, which is a fork of the Vim project.${default}
             ${red}-z ${yellow}| ${red}Oh-my-zsh${yellow}  ┄┄┄┄┄┅┅┅┅┅┅┆ The Zsh is a Unix shell that can be used as an interactive login shell and as a command interpreter for shell scripting.
             ${red}-t ${yellow}| ${red}Oh-my-Tmux${yellow} ┄┄┄┄┄┅┅┅┅┅┅┆ Tmux is a terminal multiplexer: it allows creating, accessing and controlling multiple terminals from a single screen.
             ${red}P10K${yellow}            ┄┄┄┄┄┅┅┅┅┅┅┆ It is a plugin that allows you to customize the appearance of Zsh.
+            ${red}-p ${yellow}| ${red}Packages${yellow}   ┄┄┄┄┄┅┅┅┅┅┅┆ Set of open source tools adapted to the Android OS packaged in a .deb extension for exclusive use in Termux.
             ${red}-i ${yellow}| ${red}i-Haklab${yellow}   ┄┄┄┄┄┅┅┅┅┅┅┆ i-Haklab is a hacking laboratory for Termux that contains open source tools for osint, pentesting, scan/find vulnerabilities, exploitation and post-exploitation.
             ${red}-v ${yellow}| ${red}Vim${yellow}        ┄┄┄┄┄┅┅┅┅┅┅┆ Vim is an open source, free, cross-platform text editor.
-            ${red}-n ${yellow}| ${red}Neovim${yellow}     ┄┄┄┄┄┅┅┅┅┅┅┆ Neovim is a highly customizable and extensible text editor, which is a fork of the Vim project.${default}
+            ${red}X11_distro${yellow}      ┄┄┄┄┄┅┅┅┅┅┅┆ Utility that lets you run your Linux distribution in a desktop environment.
+            ${red}X11_native${yellow}      ┄┄┄┄┄┅┅┅┅┅┅┆ It is a tool that allows you to run a Linux environment on an Android device.
       \n\n"
 }
 
@@ -156,6 +159,54 @@ i-Haklab() {
       apt update >/dev/null && apt install i-haklab
 }
 
+x11_native() {
+      echo -en "\e[36mInstalling X11_Native ...\e[0m\n"
+      pkg update
+      pkg install x11-repo
+      pkg install termux-x11-nightly
+      pkg install pulseaudio
+      pkg install xfce4
+      pkg install tur-repo
+      pkg install firefox
+      echo -en "\e[36mInstallation Successfully\e[0m\n"
+}
+
+x11_distro() {
+      echo -en "\e[36mInstalling X11_distro ...\e[0m\n"
+      pkg install x11-repo
+      pkg install termux-x11-nightly -y
+      pkg install tur-repo -y
+      pkg install pulseaudio -y
+      pkg install proot-distro -y
+      pkg install wget git;
+      echo -en "\e[36mInstallation Successfully\e[0m\n"
+      echo -en "\e[0;33mTo install a distribution, Run \e[0;34mproot-disto \e[0;31mlist\e[0;33m, to see the available distributions, choose one and execute the Comammos side:\n"
+      printf "\e[0;34mproot-distro install <alias>\e[0;33m
+      pd login debian
+      pd login debian
+      apt update && apt upgrade -y
+      apt install sudo nano adduser xfce4 xfce4-terminal -y
+      adduser droidmaster
+      Edit this file /etc/sudoers and add following line: droidmaster ALL=(ALL:ALL) ALL
+      su - droidmaster\e[0m\n"
+
+}
+
+Distro() {
+      echo -en "\e[36mInstalling distro ...\e[0m\n"
+      pkg install proot-distro -y
+      pkg install wget git;
+      echo -en "\e[36mInstallation Successfully\e[0m\n"
+      echo -en "\e[0;33mTo install a distribution, Run \e[0;34mproot-disto \e[0;31mlist\e[0;33m, to see the available distributions, choose one and execute the Comammos side:\n"
+      printf "\e[0;34mproot-distro install <alias>\e[0;33m
+      pd login debian
+      pd login debian
+      apt update && apt upgrade -y
+      apt install sudo nano adduser
+      Edit this file /etc/sudoers and add following line: droidmaster ALL=(ALL:ALL) ALL
+      su - droidmaster\e[0m\n"
+}
+
 [[ -n $1 ]] && {
       case "$1" in
             -u|UMBRELLA)
@@ -189,6 +240,15 @@ i-Haklab() {
                   else
                         echo -en "\e[31mE: \e[0mPackages functions. \e[0m\n"
                   fi
+                  ;;
+            distro)
+                  Distro
+                  ;;
+            X11_distro)
+                  x11_distro
+                  ;;
+            X11_native)
+                  x11_native
                   ;;
             *)
                   echo -en "\e[31m(⋯☣)\e[0mInput package, run pkg2install <package>\e[0m\n"
