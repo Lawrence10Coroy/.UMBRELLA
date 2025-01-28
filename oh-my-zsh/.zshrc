@@ -58,6 +58,7 @@ alias l='lsd -lh --group-dirs=first'
 alias ll='lsd -lha --group-dirs=first'
 alias bat="bat -f --theme 'GitHub'"
 alias ipa="ip -brief a"
+alias getip="wget http://checkip.dyndns.org/ -O - -o /dev/null | cut -d: -f 2 | cut -d\< -f 1 | sed 's/ //g'"
 alias hg="history | grep -i"
 alias cat="/data/data/com.termux/files/usr/bin/bat --style=plain"
 alias can="/data/data/com.termux/files/usr/bin/cat"
@@ -78,7 +79,10 @@ function man() {
     /usr/bin/man $@
 }
 
-function fzf-lovely(){                                                                                                                                            if [ "$1" = "h" ]; then                                                            fzf -m --reverse --preview-window down:20 --preview '[[ $(file --mime {}) =~ binary ]] &&
+function fzf-lovely() {
+ command -v file >/dev/null || { pkg install file >/dev/null 2>&1; }
+if [ "$1" = "h" ]; then
+  fzf -m --reverse --preview-window down:20 --preview '[[ $(file --mime {}) =~ binary ]] &&
                     echo {} is a binary file ||                                                     (bat --style=numbers --color=always {} ||
                       highlight -O ansi -l {} ||                                                     coderay {} ||
                       rougify {} ||                                                                  cat {}) 2> /dev/null | head -500'                        
@@ -95,55 +99,11 @@ function archivos() {
   am start -a android.intent.action.VIEW -d "content://com.android.externalstorage.documents/root/primary" >/dev/null
 }
 
-function apkinfo() {
-  bash ~/.UMBRELLA/libexec/functions/apkinfo "$@";
-}
+function X11_distro() {
+  command -v proot-distro >/dev/null || { echo -en "\e[0;31m(⋯☣) \e[0;33mUMBRELLA CORPORACION need proot-distro. Run \e[0;34mpkg2install \e[0;31mproot-distro\e[0m\n" }
 
-function getip() {
-  if test ! $( command -v wget ) >/dev/null;then
-    pkg install wget -y >/dev/null 2>&1;
-  fi
-  wget http://checkip.dyndns.org/ -O - -o /dev/null | cut -d: -f 2 | cut -d\< -f 1 | sed 's/ //g'
-}
+  /data/data/com.termux/files/home/.UMBRELLA/libexec/functions/X11_distro
 
-function distroX11() {
-  if test ! $(command -v proot-distro) >/dev/null; then
-    echo -en "\e[0;33mRun pkg install proot-distro\e[0m\n"
-  else 
-    a=$(mktemp);
-    if [ -s /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs ]; then
-      command ls /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs > $a;
-    fi
-
-    b="$(cat $a | awk '{print $1}')";
-    if [ -s /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${b}/home ]; then
-      command ls /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${b}/home > $a;
-      b="$(cat $a | awk '{print $1}')";
-
-# Kill open X11 processes
-      kill -9 $(pgrep -f "termux.x11") 2>/dev/null;
-#Enable PulseAudio over Network
-      pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1
-#Prepare termux-x11 session
-     export XDG_RUNTIME_DIR=${TMPDIR}
-     termux-x11 :0 >/dev/null &
-# Wait a bit until termux-x11 gets started.
-      sleep 3
-#Launch Termux X11 main activity
-      am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity > /dev/null 2>&1
-     sleep 1
-# Login in PRoot Environment. Do some initialization for PulseAudio, /tmp directory
-# and run XFCE4 as user.
-# See also: https://github.com/termux/proot-distro
-# Argument -- acts as terminator of proot-distro login options processing.
-# All arguments behind it would not be treated as options of PRoot Distro.
-      proot-distro login debian --shared-tmp -- /bin/bash -c 'export PULSE_SERVER=127.0.0.1 && export XDG_RUNTIME_DIR=${TMPDIR} && su - '${b}' -c "env DISPLAY=:0 startxfce4"'
-     exit 0;
-    else
-     echo -en "\e[0;334mYou have to install Termux:X11 apk.\e[0m\n"
-    fi
-    exec rm ${a} &>/dev/null;
-  fi
 }
 
 function df() {
@@ -153,32 +113,22 @@ function df() {
   command duf $1
 }
 
+function X11_native() {
+
+    command -v termux-x11 >/dev/null || { echo -en "\e[0;31m(⋯☣) \e[0;33mUMBRELLA CORPORACION need termux-X11. Run \e[0;34mpkg2install \e[0;31mX11_native\e[0m\n" }
+    /data/data/com.termux/files/home/.UMBRELLA/libexec/functions/X11_native >/dev/null 2>&1;
+
+}
+
 function du() {
   command du -hP $1;
 }
 
 function distro() {
-  if test ! $(command -v proot-distro) >/dev/null; then
-    echo -en "\e[0;33mRun pkg install proot-distro\e[0m\n"
-  fi
+    command -v proot-distro >/dev/null || { echo -en "\e[0;31m(⋯☣) \e[0;33mUMBRELLA CORPORACION need proot-distro. Run \e[0;34mapt \e[0;31minstall \e[0;33mproot-distro\e[0m\n" }
+    /data/data/com.termux/files/home/.UMBRELLA/libexec/functions/distro
 
-  a=$(mktemp);
-  if [ -s /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs ]; then
-    command ls /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs > $a;
-  fi
-
-  b="$(cat $a | awk '{print $1}')";
-  if [ -s /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${b}/home ]; then
-    command ls /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${b}/home > $a;
-    b="$(cat $a | awk '{print $1}')";
-    exec proot-distro login debian --user ${b};
-  else
-    echo -en "\e[0;33mYou have to install a distribution.\e[0m\n"
-  fi
-
-  exec rm ${a} &>/dev/null;
-
-}
+  }
 
 function localhost() {
   command ifconfig 2>/dev/null|grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}'|grep -v 255|grep -v 127|tail -n 1;
@@ -217,20 +167,12 @@ function rm() {
     scrub -p dod $@
     shred -zun 10 -v $@
   else
-    command rm -rf $@ && echo "*Sucessfull";
+    command rm -rf $@ && echo "Done!";
   fi
   command setterm --foreground default
   }
 
-if [ -x /data/data/com.termux/files/usr/libexec/termux/command-not-found ]; then
-             command_not_found_handler() {
-                 if test ! -f /data/data/com.termux/files/home/.UMBRELLA/libexec/functions/$1 ; then
-                     /data/data/com.termux/files/usr/libexec/termux/command-not-found $1;
-                 else
-                     bash /data/data/com.termux/files/home/.UMBRELLA/libexec/functions/$@ ;
-                 fi
-             }
+if [[ ! "$PATH" == */data/data/com.termux/files/home/.UMBRELLA/libexec/functions* ]]; then PATH="${PATH:+${PATH}:}/data/data/com.termux/files/home/.UMBRELLA/libexec/functions";
 fi
-
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
