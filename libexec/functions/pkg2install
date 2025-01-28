@@ -49,11 +49,11 @@ UMBRELLA() {
       mv ~/.UMBRELLA/Share/.termux/ ~;
       if test -d ~/.confi/lsd; then rm -r ~/.config/lsd &>/dev/null; fi
       mv ~/.UMBRELLA/Share/lsd ~/.config;
-      if test ! -d /data/data/com.termux/files/usr/share/font;then mkdir /data/data/com.termux/files/usr/share/font; fi
-      mv ~/.UMBRELLA/Share/Hack.zip /data/data/com.termux/files/usr/share/font && unzip /data/data/com.termux/files/usr/share/font/Hack.zip;
-      rm /data/data/com.termux/files/usr/share/font/Hack.zip &>/dev/null;
+      if test ! -d /data/data/com.termux/files/usr/share/fonts;then mkdir /data/data/com.termux/files/usr/share/fonts; fi
+      mv ~/.UMBRELLA/Share/Hack.zip /data/data/com.termux/files/usr/share/fonts && unzip /data/data/com.termux/files/usr/share/fonts/Hack.zip;
+      rm /data/data/com.termux/files/usr/share/fonts/Hack.zip &>/dev/null;
       if test -a ~/.termux/font.ttf; then mv ~/.termux/font.ttf ~/.termux/font.ttf.old; fi
-      cp /data/data/com.termux/files/usr/share/font/HackNerdFont-Italic.ttf ~/.termux/font.ttf;
+      cp /data/data/com.termux/files/usr/share/fonts/HackNerdFont-Italic.ttf ~/.termux/font.ttf;
       if [ ! -f ~/.bashrc ]; then touch ~/.bashrc ; fi
       chmod +x ~/.bashrc;
       echo "echo -en \"\e[31mWARNING:\e[0m You are out of UMBRELLA CORPORATION | Some commands and tools could not be running.\n\"" >| ~/.bashrc;
@@ -161,13 +161,13 @@ i-Haklab() {
 
 x11_native() {
       echo -en "\e[36mInstalling X11_Native ...\e[0m\n"
-      pkg update
-      pkg install x11-repo
-      pkg install termux-x11-nightly
-      pkg install pulseaudio
-      pkg install xfce4
-      pkg install tur-repo
-      pkg install firefox
+      xfce_packages=('tar' 'x11-repo' 'xfce4' 'xfce4-goodies' 'xfce4-pulseaudio-plugin' 'firefox' 'starship' 'termux-x11-nightly' 'tur-repp' 'virglrenderer-android' 'fastfetch' 'papirus-icon-theme' 'eza' 'bat')
+      pkg install -y "${xfce_packages[@]}"
+      [ ! -d ~/.icons ] && { mkdir ~/.icons }
+      [ ! -d ~/.themes ] && { mkdir ~/.themes }
+      mv ~/.UMBRELLA/Share/Sweet-Ambar-v40.tar.xz ~/.themes && tar -xf ~/.themes/Sweet-Ambar-v40.tar.xz && command rm ~/.themes/Sweet-Ambar-v40.tar.xz;
+      mv ~/.UMBRELLA/Share/Sweet-Dark-v40.tar.xz ~/.themes && tar -xf ~/.themes/Sweet-Dark-v40.tar.xz && command rm ~/.themes/Sweet-Dark-v40.tar.xz;
+      mv ~/.UMBRELLA/Share/candy-icons.tar.xz ~/.icons && tar -xf ~/.icons/candy-icons.tar.xz && command rm ~/.icons/candy-icons.tar.xz
       echo -en "\e[36mInstallation Successfully\e[0m\n"
 }
 
