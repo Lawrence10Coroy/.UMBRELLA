@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+a=$(mktemp);
+if [ -d /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs ]; then
+  command ls /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs &> $a;
+fi
+
+  b="$(cat $a | awk '{print $1}')";
+  if [ -d /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${b}/home ]; then
+    command ls /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${b}/home > $a;
+    b="$(cat $a | awk '{print $1}')";
+    exec proot-distro login debian --user ${b};
+  else
+    echo -en "\e[0;33mYou have to install a distribution. Run \e[0;34mpkg2install \e[0;31mdistro.\e[0m\n";
+    fi
+  exec rm ${a} &>/dev/null;
