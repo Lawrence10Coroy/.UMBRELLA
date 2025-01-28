@@ -56,16 +56,19 @@ helpper() {
                  ✲ Commands ✲
    COMMANDS             ∵           DESCRIPTION$D
   ❉ ${green}archivos${yellow}      ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ File management of your Android.
-  ❉ ${green}distro${yellow}       ┄┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Utility that allows you to run a Linux distribution on an Android device without requiring root access.
-  ❉ ${green}distroX11${yellow}    ┄┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Utility that lets you run your Linux distribution in a desktop environment.
-  ❉ ${green}pkg2install${yellow}   ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ About packages provided by UMBRELLA CORPORATION.
   ❉ ${green}apkinf${yellow}        ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Provides information on phone applications.
+  ❉ ${green}df${yellow}            ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ It is a tool that shows information about the available and total space in a file system.
+  ❉ ${green}distro${yellow}       ┄┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Utility that allows you to run a Linux distribution on an Android device without requiring root access.
+  ❉ ${green}fzf-lovely${yellow}    ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ It is a flexible tool that allows you to search for files, navigate processes, complete routes automatically.
   ❉ ${green}lock${yellow}          ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇  Block termux.
-  ❉ ${green}LOCALHOST${yellow}     ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Show your public internet protocol.
+  ❉ ${green}localhost${yellow}     ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Show your public internet protocol.
   ❉ ${green}p10k  ${yellow}        ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ To access the settings of Powerlevel10k is a theme for Zsh.
+  ❉ ${green}pkg2install${yellow}   ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ About packages provided by UMBRELLA CORPORATION.
   ❉ ${green}tree${yellow}          ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ File Map/Map Display.
   ❉ ${green}tldr${yellow}          ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Command Manual/Command Usage.
   ❉ ${green}traductor${yellow}     ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Init a command line traductor.
+  ❉ ${green}X11_distro${yellow}    ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ Utility that lets you run your Linux distribution in a desktop environment.
+  ❉ ${green}X11_distro${yellow}    ┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇ It is a tool that allows you to run a Linux environment on an Android device.
   ┇┄┄┄┄┄┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┄┄┄┄┇${default}\n\n"
 }
 export -f helpper
