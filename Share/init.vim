@@ -16,6 +16,17 @@ set laststatus=2
 set signcolumn=yes
 set syntax=tmux
 syntax on
+set termguicolors
+if &termguicolors
+      let s:termguicolors = 1
+else
+      let s:termguicolors - 0
+endif
+
+:au! CursorHold
+:au! CursorHold!
+:au! CursorMoved
+:au! CursorMovedI
 
 " ############### PLUGINSTALL #################
 call plug#begin('~/.config/nvim/plugged')
@@ -57,19 +68,14 @@ call plug#end()
 
 "
 let g:indentLine_fileTypeExclude = ['text', 'help', 'txt']
-"let g:indentLine_bufNameExclude = ['NERD_tree.*']
-
-" Mostrar mejor mensajes de error
+" Print error message
 let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
 let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-
-"
 "
 let NERDTreeQuitOnOpen=1
 let mapleader=" "
-
-
+" CONFIGURATION For Java
 inoremap \\ *
 inoremap <C-l> public static void main(String[] args)
 
