@@ -1,16 +1,34 @@
-#!/bin/bash
+#!/bin/env bash
 
-source ${HOME}/.UMBRELLA/UMBRELLA/variables
-source ${UMBRELLA}/functions
+source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33mFile 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
 
-[[ -z $1 ]] && { printf "${yellow}For more help type ${green}UMBRELLA${yellow} [${red}-h${yellow} |${red} --help${yellow} ] for helpper UMBRELLA CORPORATION.${default}\n";exit 0;}
+check_dependencies aapt
 
-COMMANDS aapt aapt
-theme dark
-package=$(aapt dump badging "$*" | awk '/package/{gsub("name=|'"'"'","");  print $2}')
-activity=$(aapt dump badging "$*" | awk '/activity/{gsub("name=|'"'"'","");  print $2}')
-echo
-echo -en $green"   file :$yellow $1\n"
-echo -en $green"package :$yellow $package\n"
-echo -en $green"activity:$yellow ${activity}$default\n"
+main_activity() {
+  local argv="$1"
+  if [[ ! -f "$argv" ]];then
+    echo -e "\033[31mError:\033[33m $1 is not a valid file.\033[0m"
+    exit 1
+  fi
+  theme dark
+  package=$(aapt dump badging "$1" | awk '/package/{gsub("name=|'"'"'","");  print $2}')
+  activity=$(aapt dump badging "$1" | awk '/activity/{gsub("name=|'"'"'","");  print $2}')
 
+  if ! aapt dump badging "$1" &> /dev/null; then
+    echo -en "\033[31mError:\033[33m Failed to extract information from $1.\033[0m\n"
+    exit 1
+  fi
+  echo
+  echo -en $green"   file :$yellow $1\n"
+  echo -en $green"package :$yellow $package\n"
+  echo -en $green"activity:$yellow ${activity}$default\n"
+  log_data "Get information $argv"
+}
+
+if [[ -z "$1" ]]; then
+  echo -e "\033[36mUsage:${green} apkinfo${yellow} <apk path> \nTo get application information.\033[0m"
+  echo -e "\033[33mExample:${green} apkinfo${yellow} /system/app/HTMLViewer/HTMLViewer.apk\033[0m"
+  exit 0;
+fi
+
+main_activity "$@"
