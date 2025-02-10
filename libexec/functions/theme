@@ -1,50 +1,97 @@
 #!/bin/bash
 #
-source ${HOME}/.UMBRELLA/UMBRELLA/variables
-source ${UMBRELLA}/functions
-Login=$(grep "theme" ${libexec}/UMBRELLA.login|tail -n 1)
-Help=$(grep "theme" ${libexec}/functions/UMBRELLA|tail -n 1)
-Passw=$(grep "theme" ${libexec}/functions/password|tail -n 1)
+source ${HOME}/.UMBRELLA/UMBRELLA/functions || { echo -en "\033[31mError:\033[33mFile 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
 
-Disable='#theme'
-Cyan='theme cyan'
-Red='theme red'
-Dark='theme dark'
+declare -A THEMES=(
+  ["cyan"]="theme cyan"
+  ["red"]="theme red"
+  ["dark"]="theme dark"
+)
 
-	[[ -z $1 ]] && {
-		printf "${yellow}For more help type ${green}UMBRELLA${yellow} [${red} -h${yellow} |${red} --help${yellow} ] for helpper UMBRELLA CORPORATION.${default}\n"
-	}
-	[[ -n $1 ]] && {
-	if [ $1 = '-c' ] || [ $1 = '--color' ]; then
-		case "$2" in
-			cyan)
-				sed -i "s|$Login|$Cyan|" ${libexec}/UMBRELLA.login
-				sed -i "s|$Help|$Cyan|" ${libexec}/functions/UMBRELLA
-				sed -i "s|$Passw|$Cyan|" ${libexec}/functions/password
-				;;
-			red)
-				sed -i "s|$Login|$Red|" ${libexec}/UMBRELLA.login
-				sed -i "s|$Help|$Red|" ${libexec}/functions/UMBRELLA
-				sed -i "s|$Passw|$Red|" ${libexec}/functions/password
-				;;
-			dark)
-				sed -i "s|$Login|$Dark|" ${libexec}/UMBRELLA.login
-				sed -i "s|$Help|$Dark|" ${libexec}/functions/UMBRELLA
-				sed -i "s|$Passw|$Dark|" ${libexec}/functions/password
-				;;
-			*)
-				printf "${red}(⋯☣)${yellow}Input theme color, run ${green}theme ${red}-c <color>${default}\n"
-				;;
-		esac
-	elif [ $1 = '-s' ] || [ $1 = '--set' ]; then
-		select opt in Enable Disable Exit
-		do
-			[[ $opt = Exit ]] && { exit 0; }
-			[[ $opt = Disable ]] && { sed -i "s|$Login|$Disable|" ${libexec}/UMBRELLA.login; }
-			[[ $opt = Enable ]] && { sed -i "s|$Login|$Cyan|" ${libexec}/UMBRELLA.login; }
-			break
-		done
-	else
-		about
-	fi
+disable='#theme'
+
+declare -A change=(
+  ["Login"]=$(grep "theme" ${libexec}/UMBRELLA.login|tail -n 1)
+  ["Help"]=$(grep "theme" ${libexec}/functions/UMBRELLA|tail -n 1)
+  ["Passw"]=$(grep "theme" ${libexec}/functions/password|tail -n 1)
+)
+
+list_themes() {
+  echo -en "${yellow}Available themes: "
+  for theme in "${!THEMES[@]}"; do
+    echo -en "${blue}$theme${default} "
+  done
+  log_data "List themes"
+  echo
 }
+
+main() {
+  local color=$1
+  if [[ -z "${THEMES[$color]}" ]]; then
+    echo -e "${red}Error:${yellow} Color not valid."
+    list_themes
+    exit 1
+  fi
+
+  local files=("${libexec}/UMBRELLA.login" "${libexec}/functions/UMBRELLA" "${libexec}/functions/password")
+  check_file "${files[@]}"
+
+  sed -i "s|${change[Login]}|${THEMES[$color]}|" ${libexec}/UMBRELLA.login
+  sed -i "s|${change[Help]}|${THEMES[$color]}|" ${libexec}/functions/UMBRELLA
+  sed -i "s|${change[Passw]}|${THEMES[$color]}|" ${libexec}/functions/password
+
+  echo -e "${green}Theme change to $color.${default}"
+  log_data "Theme change to $color"
+}
+
+toggle_theme() {
+  select opt in Enable Disable Exit; do
+    case "$opt" in
+      Exit)
+        exit 0
+        ;;
+      Disable)
+        sed -i "s|${change[Login]}|$disable|" ${libexec}/UMBRELLA.login
+        log_data "Disable theme"
+        break
+        ;;
+      Enable)
+        main "$red"
+        log_data "Enable theme"
+        break
+        ;;
+      *)
+        echo -e "${red}Error:${yellow} No valid option!. Try again.${default}"
+        ;;
+    esac
+  done
+}
+
+if [[ -z "$1" ]]; then
+  echo -e "${red}(⋯☣)${yellow}Input theme color, run ${green}theme ${red}-c <color>${default}\n"
+  info
+  exit 1;
+fi
+
+case "$1" in
+  -c|--color)
+    if [[ -z "$2" ]]; then
+      echo -e "${red}Error:${yellow} You must specify a color.${default}"
+      list_themes
+      exit 1;
+    fi
+    main "$2"
+    ;;
+  -s|--set)
+    toggle_theme
+    ;;
+  -l|--list)
+    list_themes
+    ;;
+  *)
+    echo -e "${red}Error:${yellow} No valid option '$1'."
+    echo -e "${yellow}Input theme color, run ${green}theme ${red}-c <color>${default}\n"
+    info
+    exit 1
+    ;;
+esac
