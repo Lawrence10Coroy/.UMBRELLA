@@ -1,257 +1,334 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #AUTOR: LAWRENCE COROY
-source ${HOME}/.UMBRELLA/UMBRELLA/variables >/dev/null 2>&1;
+# DESCRIPCIÓN: Script para automatizar la instalación de herramientas y configuraciones en Termux.
 
-[[ -z $1 ]] && {
+source ${HOME}/.UMBRELLA/UMBRELLA/functions || { echo -en "\033[31mError:\033[33mFile 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
+E="${red}[✖] Error:${blue}"
+D="${green}[✔]${blue}"
+A="${green}[+]${blue}"
+LOG_FILE="${HOME}/.UMBRELLA/UMBRELLA/.log"
+[ ! -f "$LOG_FILE" ] && touch "$LOG_FILE"
+
+log() {
+  local argv="$1"
+  echo -e "$argv${default}"
+}
+
+error() {
+  local argv="$1"
+  log "$E $argv"
+  log "Verify the error in $LOG_FILE"
+}
+
+update_system() {
+  log "$A Update system ... "
+  if ! apt update && pkg upgrade -y &>>"$LOG_FILE"; then
+    error "The dependencies could not be updated!."
+  fi
+}
+
+install_dependencies() {
+  local dependendencies=("$@")
+  for dep in "${dependendencies[@]}"; do
+    if command -v "$dep" &>/dev/null; then
+      log "$D $dep Already is installed!."
+    else
+      log "$A Installing dependencies $dep...  "
+      if ! pkg install -y "$dep"; then
+        error "Could not be installed '$dep'."
+      fi
+      log "$D $dep Installed Successfully!."
+    fi
+  done
+}
+
+backup_files() {
+  local files=("$@")
+  for file in "${files[@]}"; do
+    if [[ -e "$file" ]]; then
+      local backup_file="${file}.backup.$(date +%d-%m-%Y_%H:%M:%S)"
+      mv "$file" "$backup_file"
+    fi
+  done
+}
+
+
+usage() {
       printf "${yellow}USE: ${green}pkg2install ${red}<packages> ${yellow}to install a package providing UMBRELLA.
 For more help type ${green}UMBRELLA ${yellow}[ ${red}-h ${yellow}| ${red}--help ${yellow}] for helpper UMBRELLA CORPORATION.
 
             PACKAGES:
             ${red}Distro${yellow}          ┄┄┄┄┄┅┅┅┅┅┅┆ Utility that allows you to run a Linux distribution on an Android device without requiring root access.
-            ${red}-i ${yellow}| ${red}i-Haklab${yellow}   ┄┄┄┄┄┅┅┅┅┅┅┆ i-Haklab is a hacking laboratory for Termux that contains open source tools for osint, pentesting, scan/find vulnerabilities      , exploitation and post-exploitation.
             ${red}-n ${yellow}| ${red}Neovim${yellow}     ┄┄┄┄┄┅┅┅┅┅┅┆ Neovim is a highly customizable and extensible text editor, which is a fork of the Vim project.${default}
             ${red}-z ${yellow}| ${red}Oh-my-zsh${yellow}  ┄┄┄┄┄┅┅┅┅┅┅┆ The Zsh is a Unix shell that can be used as an interactive login shell and as a command interpreter for shell scripting.
             ${red}-t ${yellow}| ${red}Oh-my-Tmux${yellow} ┄┄┄┄┄┅┅┅┅┅┅┆ Tmux is a terminal multiplexer: it allows creating, accessing and controlling multiple terminals from a single screen.
             ${red}P10K${yellow}            ┄┄┄┄┄┅┅┅┅┅┅┆ It is a plugin that allows you to customize the appearance of Zsh.
             ${red}-p ${yellow}| ${red}Packages${yellow}   ┄┄┄┄┄┅┅┅┅┅┅┆ Set of open source tools adapted to the Android OS packaged in a .deb extension for exclusive use in Termux.
-            ${red}-i ${yellow}| ${red}i-Haklab${yellow}   ┄┄┄┄┄┅┅┅┅┅┅┆ i-Haklab is a hacking laboratory for Termux that contains open source tools for osint, pentesting, scan/find vulnerabilities, exploitation and post-exploitation.
             ${red}-v ${yellow}| ${red}Vim${yellow}        ┄┄┄┄┄┅┅┅┅┅┅┆ Vim is an open source, free, cross-platform text editor.
             ${red}X11_distro${yellow}      ┄┄┄┄┄┅┅┅┅┅┅┆ Utility that lets you run your Linux distribution in a desktop environment.
             ${red}X11_native${yellow}      ┄┄┄┄┄┅┅┅┅┅┅┆ It is a tool that allows you to run a Linux environment on an Android device.
-      \n\n"
+      \n"
 }
 
-Packages() {
-      echo -en "\e[0;36mInstalling packages ... \e[0m\n"
-      if test ! $(command -v wget) >/dev/null; then
-            yes|pkg install wget &>/dev/null;
-      fi
-      if test ! $(command -v gnupg) >/dev/null; then
-            yes|pkg install gnupg &>/dev/null;
-      fi
-      mkdir -p $PREFIX/etc/apt/sources.list.d
-      wget https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/ivam3-termux-packages.list -O $PREFIX/etc/apt/sources.list.d/ivam3-termux-packages.list;
-      curl -fsSL "https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/dists/stable/public_key.gpg"|gpg --dearmor|tee "$PREFIX/etc/apt/trusted.gpg.d/ivam3.gpg" >/dev/null;
-      apt update &>/dev/null;
-      echo -en "\e[0;36mInstallation Successfully\e[0m\n"
+install_packages() {
+  local dependencies=("wget" "gnupg" "curl" "git")
+
+  log "Installing packages dependencies... "
+  install_dependencies "$dependencies"
+  mkdir -p $PREFIX/etc/apt/sources.list.d
+  wget https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/ivam3-termux-packages.list -O $PREFIX/etc/apt/sources.list.d/ivam3-termux-packages.list;
+  curl -fsSL "https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/dists/stable/public_key.gpg"|gpg --dearmor|tee "$PREFIX/etc/apt/trusted.gpg.d/ivam3.gpg" >"$LOG_FILE";
+  update
+  log "$D Installed Successfully!."
 }
 
 UMBRELLA() {
-      echo -en "\e[0;36mInstalling UMBRELLA CORPORATION ... \e[0m\n"
-      mkdir -p $PREFIX/var/log && touch $PREFIX/var/log/Umbrella.log
-      yes|apt-get install tree tealdeer lsd zsh git curl gnupg tmux vim-python nodejs python-pynvim neovim openjdk-17 unzip;
-      tldr --update;
-      git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-      ~/.fzf/install
-      echo -en "\e[0;36mSetting UMBRELLA following instructions ... \e[0m\n"
-      if test -d ~/.termux; then mv ~/.termux ~/.termux.old &>/dev/null; fi
-      mv ~/.UMBRELLA/Share/.termux/ ~;
-      if test -d ~/.confi/lsd; then rm -r ~/.config/lsd &>/dev/null; fi
-      mv ~/.UMBRELLA/Share/lsd ~/.config;
-      if test ! -d /data/data/com.termux/files/usr/share/fonts;then mkdir /data/data/com.termux/files/usr/share/fonts; fi
-      mv ~/.UMBRELLA/Share/Hack.zip /data/data/com.termux/files/usr/share/fonts && unzip /data/data/com.termux/files/usr/share/fonts/Hack.zip;
-      rm /data/data/com.termux/files/usr/share/fonts/Hack.zip &>/dev/null;
-      if test -a ~/.termux/font.ttf; then mv ~/.termux/font.ttf ~/.termux/font.ttf.old; fi
-      cp /data/data/com.termux/files/usr/share/fonts/HackNerdFont-Italic.ttf ~/.termux/font.ttf;
-      if [ ! -f ~/.bashrc ]; then touch ~/.bashrc ; fi
-      chmod +x ~/.bashrc;
-      echo "echo -en \"\e[31mWARNING:\e[0m You are out of UMBRELLA CORPORATION | Some commands and tools could not be running.\n\"" >| ~/.bashrc;
-      echo -en "\e[36mInstallation Successfully\n"
-    }
+  local dependencies=("tree" "tealdeer" "lsd" "zsh" "git" "curl" "gnupg" "nodejs" "openjdk-17" "unzip")
+  local backup=("${HOME}/.termux" "${HOME}/.config/lsd")
+  local files=("${share}/.termux" "${share}/Hack.zip" "${share}/.dircolors")
+  check_files "${files[@]}"
+
+  log "$A Installing UMBRELLA CORPORATION..."
+  install_dependencies "$dependencies"
+  backup_files "${backup[@]}"
+  tldr --update;
+  git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
+
+  log "$A Setting UMBRELLA following instructions ... "
+  mv -r ${share}/.termux/ ~;
+  if [ ! -d ${PREFIX}/share/fonts ]; then
+    mkdir -p ${PREFIX}/share/fonts;
+  fi
+
+  if ! unzip "${share}/Hack.zip" -d "${PREFIX}/share/fonts" &>>"$LOG_FILE"; then
+    error "In the extraction of the Hack.zip file"
+  else
+    mv "${share}/.dircolors" ~
+    rm "${PREFIX}/share/fonts/Hack.zip"
+    cp "${PREFIX}/share/fonts/HackNerdFont-Italic.ttf" ~/.termux/font.ttf
+  fi
+
+  if [ ! -f "${HOME}/.bashrc" ]; then
+    touch "${HOME}/.bashrc"
+  fi
+
+  chmod +x ~/.bashrc
+  echo "echo -en \"\e[31mWARNING:\e[0m You are out of UMBRELLA CORPORATION | Some commands and tools could not be running.\n\"" >| ~/.bashrc;
+  log "$D UMBRELLA CORPORATION Installed Successfully!"
+}
 
 Oh-My-Zsh() {
-      echo -en "\e[36mInstalling oh-my-zsh ...\e[0m\n"
-      if test ! $(command -v zsh ) >/dev/null; then
-            yes|pkg install zsh;
-      fi
-      git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions &>$PREFIX/var/log/Umbrella.log;
-      git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting &>$PREFIX/var/log/Umbrella.log;
-      echo -en "\e[0;36mSetting oh-my-zsh following UMBRELLA instructions ... \e[0m\n"
-      pip install Pygments &>$PREFIX/var/log/Umbrella.log;
-      if test -f ~/.zshrc; then mv ~/.zshrc ~/.zshrc.old."$(date +%d-%m-%Y_%H:%M:%S)" &>/dev/null; fi
-      if test -f $PREFIX/etc/zshrc; then mv $PREFIX/etc/zshrc $PREFIX/etc/zshrc.old."$(date +%d-%m-%Y_%H:%M:%S)"; fi
-      rm $PREFIX/etc/motd >/dev/null 2>&1;
-      mv ~/.UMBRELLA/oh-my-zsh/.zshrc ~;
-      mv ~/.UMBRELLA/oh-my-zsh/zshrc $PREFIX/etc;
-      cp ~/.UMBRELLA/oh-my-zsh/themes/* ~/.oh-my-zsh/themes && rm -rf ~/.UMBRELLA/oh-my-zsh;
-      echo -en "\e[36mInstallation Successfully\e[0m\n"
-    }
+  local dependencies=("zsh" "git")
+  local backup=("${HOME}/.zshrc" "${PREFIX}/etc/zshrc" "$PREFIX/etc/motd")
+  local files=("${Zsh}/.zshrc" "${Zsh}/zshrc" "${Zhs}/themes")
+  check_files "${files[@]}"
+
+  log "$A Installing dependencies Oh-My-Zsh ... "
+  install_dependencies "${dependencies[@]}"
+  backup_files "${backup[@]}"
+  git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions >>"$LOG_FILE"
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting >>"$LOG_FILE"
+
+  log "$A Setting oh-my-zsh following UMBRELLA instructions ... "
+  if ! pip install Pygments >>"$LOG_FILE"; then
+    error "It could not be installed Pygments"
+  fi
+  mv ${Zsh}/.zshrc ~;
+  mv ${Zsh}/zshrc $PREFIX/etc;
+  cp ${Zhs}/themes/* ~/.oh-my-zsh/themes && rm -rf "$Zsh"
+  log "$D Oh-My-Zsh Installed Successfully"
+}
 
 Python() {
-      yes|pkg install python3 python-pip ;
-      python -m pip --no-color --quiet --no-cache-dir install bpython ;
-      python -m pip --no-color --quiet --no-cache-dir install jedin ;
-    }
+  local dependencies=("python3" "python-pip")
+
+  log "$A Installing dependencies Python ..."
+  install_dependencies "${dependencies[@]}"
+
+  if ! python -m pip --no-color --quiet --no-cache-dir install bpython >>"$LOG_FILE"; then
+    error "It could not be installed bpython"
+  else
+    log "$D bpython Installed Successfully!."
+  fi
+
+  if ! python -m pip --no-color --quiet --no-cache-dir install jedin >>"$LOG_FILE"; then
+    error "It could not be installed jedin"
+  else
+    log "$D jedin Installed Successfully!."
+  fi
+}
 
 P10K() {
-      if test ! $( command -v p10k ) >/dev/null; then
-        git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k;
-        echo 'source ~/powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
-        echo -en "\e[36mInstallation Successfully\e[0m\n"
-        echo -en "\e[36m;Run \e[0;32mp10k \e[0;31m;configure\e[0m\n"
-      else
-        echo -en "\e[0;34mAlready Installed!.\e[0m\n"
-      fi
+  local dependencies=("git" "p10k")
+
+  log "$A Installing dependencies Powerlevel10k ..."
+  install_dependencies "${dependencies[@]}"
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+  echo 'source ~/powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
+  log "$D Powerlevel10k Installed Successfully!."
+  log "Run \e[0;32mp10k \e[0;31m;configure"
  }
 
 Oh-My-Tmux() {
-      echo -en "\e[0;36mSetting tmux following UMBRELLA instructions ... \e[0m\n"
-      if test ! $(command -v tmux) >/dev/null; then
-            yes|pkg install tmux &>/dev/null;
-      fi
-      if test -d ~/.tmux; then mv ~/.tmux ~/.tmux.old."$(date +%d-%m-%Y_%H:%M:%S)"; mv ~/.tmux.conf ~/.tmux.conf.old."$(date +%d-%m-%Y_%H:%M:%S)"; fi
-      bash -c "$(curl -fsSL https://github.com/rlvilla/OhMyTmux/raw/main/ohmytmux.sh)"
-      mv ~/.UMBRELLA/Share/.tmux.conf ~;
-      echo -en "\e[36mInstallation Successfully\e[0m\n"
-    }
+  local backup=("${HOME}/.tmux" "${HOME}/.tmux.conf.old." "${HOME}/.tmux.conf")
+  backup_files "${backup[@]}"
+
+  log "$D Installing dependencies Oh-My-Tmux ... "
+  bash -c "$(curl -fsSL https://github.com/rlvilla/OhMyTmux/raw/main/ohmytmux.sh)"
+  log "$A Setting tmux following UMBRELLA instructions ... "
+  log "$D Oh-My-Tmux Installed Successfully!."
+  }
 
 Vim() {
-      echo "Setting vim following UMBRELLA instructions ... "
-      if test ! $(command -v vim) >/dev/null; then
-            yes|apt-get install vim-python nodejs &>/dev/null;
-      fi;
-      if test -f ~/.vim; then mv ~/.vim ~/.vim.old."$(date +%d-%m-%Y_%H:%M:%S)"; fi
-      mv ~/.UMBRELLA/Share/.vimrc ~
-      curl -fLo ~/.vim/autoload/plug.vim --create-dirs \https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim &>/dev/null;
-      vim +PlugInstall +PlugUpdate +q!
-      vim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-java +coc-nodejs +q!
+  local dependencies=("vim-python" "curl" "nodejs")
+  local backup=("${HOME}/.vimrc" "${HOME}/.vim")
+  local files="${share}/.vimrc"
+  check_files "${files[@]}"
 
-      if [ "$(echo $?)" == "0" ]; then
-            echo -en "\e[36mInstallation Successfully\e[0m\n"
-      else
-            vim +PlugInstall +PlugUpdate +q!
-            vim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-nodejs +q!
-            echo -en "\e[36mInstallation Successfully\e[0m\n"
-      fi
-    }
+  log "$D Installing dependencies vim ..."
+  install_dependencies "${dependencies[@]}"
+  backup_files "${backup[@]}"
+  curl -fLo ~/.vim/autoload/plug.vim --create-dirs \https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim >>"$LOG_FILE"
 
-Neovim() {
-      echo -en "\e[0;36mSetting Neovim following UMBRELLA instructions ... \e[0m\n"
-      if test ! $(command -v nvim ) >/dev/null; then
-            yes|apt-get install python-pynvim nodejs neovim &>/dev/null;
-      fi
-      if test -d ~/.config/nvim; then mv ~/.config/nvim ~/.config/nvim.opv."$(date +%d-%m-%Y_%H:%M:%S)" ; fi
-      mkdir ~/.config/nvim;
-      mv ~/.UMBRELLA/Share/init.vim ~/.config/nvim;
-      curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim &>/dev/null;
-      nvim +PlugInstall +PlugUpdate +q!
-      nvim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-java +coc-nodejs +q!
-      if [ "$(echo $?)" == "0" ]; then
-            echo -en "\e[36mInstallation Successfully\e[0m\n"
-      else
-            nvim +PlugInstall +PlugUpdate +q!
-            nvim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-java +coc-nodejs +q!
-            echo -en "\e[36mInstallation Successfully\e[0m\n"
-      fi
+  log "$A Setting vim following UMBRELLA instructions ... "
+  mv "${share}/.vimrc" ~
+  vim +PlugInstall +q
+  vim +PlugUpdate +q
+  vim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-java +coc-nodejs +q
+  log "$D Vim Installed Successfully!."
 }
 
-i-Haklab() {
-      if test ! $(command -v wget ) >/dev/null; then
-            yes|pkg install wget;
-      fi
-      if test ! $(command -v gnupg) >/dev/null; then
-            yes|pkg install gnupg;
-      fi
-      mkdir -p $PREFIX/etc/apt/sources.list.d;
-      wget https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/ivam3-termux-packages.list -O $PREFIX/etc/apt/sources.list.d/ivam3-termux-packages.list;
-      curl -fsSL "https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/dists/stable/public_key.gpg"|gpg --dearmor|tee "$PREFIX/etc/apt/trusted.gpg.d/ivam3.gpg" >/dev/null;
-      apt update >/dev/null && apt install i-haklab
+Neovim() {
+  local dependencies=("neovim" "nodejs" "python-pynvim" "curl")
+  local backup="${HOME}/.config/nvim"
+  local files="${share}/init.vim"
+  check_files "${files[@]}"
+
+  log "$A Installing dependencies Neovim ... "
+  install_dependencies "${dependencies[@]}"
+  backup_files "${backup[@]}"
+  curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim >>"$LOG_FILE"
+
+  log "$A Setting Neovim following UMBRELLA instructions ... "
+  mkdir ~/.config/nvim;
+  mv "${share}/init.vim" ~/.config/nvim;
+  nvim +PlugInstall +q
+  nvim +PlugUpdate +q
+  nvim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-java +coc-nodejs +q
+  log "$D Neovim Installed Successfully!."
 }
 
 x11_native() {
-      echo -en "\e[36mInstalling X11_Native ...\e[0m\n"
-      xfce_packages=('tar' 'x11-repo' 'xfce4' 'xfce4-goodies' 'xfce4-pulseaudio-plugin' 'firefox' 'starship' 'termux-x11-nightly' 'tur-repp' 'virglrenderer-android' 'fastfetch' 'papirus-icon-theme' 'eza' 'bat')
-      pkg install -y "${xfce_packages[@]}"
-      [ ! -d ~/.icons ] && { mkdir ~/.icons }
-      [ ! -d ~/.themes ] && { mkdir ~/.themes }
-      mv ~/.UMBRELLA/Share/Sweet-Ambar-v40.tar.xz ~/.themes && tar -xf ~/.themes/Sweet-Ambar-v40.tar.xz && command rm ~/.themes/Sweet-Ambar-v40.tar.xz;
-      mv ~/.UMBRELLA/Share/Sweet-Dark-v40.tar.xz ~/.themes && tar -xf ~/.themes/Sweet-Dark-v40.tar.xz && command rm ~/.themes/Sweet-Dark-v40.tar.xz;
-      mv ~/.UMBRELLA/Share/candy-icons.tar.xz ~/.icons && tar -xf ~/.icons/candy-icons.tar.xz && command rm ~/.icons/candy-icons.tar.xz
-      echo -en "\e[36mInstallation Successfully\e[0m\n"
+  local dependencies=('tar' 'x11-repo' 'xfce4' 'xfce4-goodies' 'xfce4-pulseaudio-plugin' 'firefox' 'starship' 'termux-x11-nightly' 'tur-repp' 'virglrenderer-android' 'fastfetch' 'papirus-icon-theme' 'eza' 'bat')
+  local files=("${share}/Sweet-Ambar-v40.tar.xz" "${share}/Sweet-Dark-v40.tar.xz" "${share}/candy-icons.tar.xz")
+
+  check_files "${files[@]}"
+
+  log "Installing dependencies X11_Native ... "
+  install_dependencies "${dependencies[@]}"
+
+  log "$A Setting desktop x11_native following UMBRELLA instructions ... "
+  if [ ! -d ~/.icons ]; then
+    mkdir ~/.icons
+  fi
+  if [ ! -d ~/.themes ]; then
+    mkdir ~/.themes
+  fi
+  mv "${share}/Sweet-Ambar-v40.tar.xz ${HOME}/.themes" && tar -xf "${HOME}/.themes/Sweet-Ambar-v40.tar.xz"
+  rm -r ~/.themes/Sweet-Ambar-v40.tar.xz;
+  mv "${share}/Sweet-Dark-v40.tar.xz ${HOME}/.themes" && tar -xf "${HOME}/.themes/Sweet-Dark-v40.tar.xz"
+  rm -r ~/.themes/Sweet-Dark-v40.tar.xz;
+  mv "${share}/candy-icons.tar.xz ${HOME}/.icons" && tar -xf "${HOME}/.icons/candy-icons.tar.xz"
+  rm -r ~/.icons/candy-icons.tar.xz
+  log "$D Ternux-11 Native Installed Successfully!."
 }
 
 x11_distro() {
-      echo -en "\e[36mInstalling X11_distro ...\e[0m\n"
-      pkg install x11-repo
-      pkg install termux-x11-nightly -y
-      pkg install tur-repo -y
-      pkg install pulseaudio -y
-      pkg install proot-distro -y
-      pkg install wget git;
-      echo -en "\e[36mInstallation Successfully\e[0m\n"
-      echo -en "\e[0;33mTo install a distribution, Run \e[0;34mproot-disto \e[0;31mlist\e[0;33m, to see the available distributions, choose one and execute the Comammos side:\n"
-      printf "\e[0;34mproot-distro install <alias>\e[0;33m
-      pd login debian
-      pd login debian
-      apt update && apt upgrade -y
-      apt install sudo nano adduser xfce4 xfce4-terminal -y
-      adduser droidmaster
-      Edit this file /etc/sudoers and add following line: droidmaster ALL=(ALL:ALL) ALL
-      su - droidmaster\e[0m\n"
+  local dependencies=("x11-repo" "termux-x11-nightly" "tur-repo" "pulseaudio" "proot-distro" "wget" "git")
+
+  log "$A Installing dependencies X11_distro ... "
+  install_dependencies "${dependencies[@]}"
+  log "$D Ternux-X11 distro Installed Successfully!"
+  log "To install a distribution, Run \e[0;34mproot-disto \e[0;31mlist\e[0;33m, to see the available distributions, choose one and execute the Comammos side:"
+
+  printf "\e[0;34mproot-distro install <alias>\e[0;33m
+  pd login debian
+  pd login debian
+  apt update && apt upgrade -y
+  apt install sudo nano adduser xfce4 xfce4-terminal -y
+  adduser droidmaster
+  Edit this file /etc/sudoers and add following line: droidmaster ALL=(ALL:ALL) ALL
+  su - droidmaster\e[0m\n"
 
 }
 
 Distro() {
-      echo -en "\e[36mInstalling distro ...\e[0m\n"
-      pkg install proot-distro -y
-      pkg install wget git;
-      echo -en "\e[36mInstallation Successfully\e[0m\n"
-      echo -en "\e[0;33mTo install a distribution, Run \e[0;34mproot-disto \e[0;31mlist\e[0;33m, to see the available distributions, choose one and execute the Comammos side:\n"
-      printf "\e[0;34mproot-distro install <alias>\e[0;33m
-      pd login debian
-      pd login debian
-      apt update && apt upgrade -y
-      apt install sudo nano adduser
-      Edit this file /etc/sudoers and add following line: droidmaster ALL=(ALL:ALL) ALL
-      su - droidmaster\e[0m\n"
+  local dependencies=("proot-distro" "wget" "git")
+
+  log "$A Installing dependencies distro ... "
+  install_dependencies "${dependencies[@]}"
+  log "$D Distro Installed Successfully"
+  log "To install a distribution, Run \e[0;34mproot-disto \e[0;31mlist\e[0;33m, to see the available distributions, choose one and execute the Comammos side:"
+
+  printf "\e[0;34mproot-distro install <alias>\e[0;33m
+  pd login debian
+  pd login debian
+  apt update && apt upgrade -y
+  apt install sudo nano adduser
+  Edit this file /etc/sudoers and add following line: droidmaster ALL=(ALL:ALL) ALL
+  su - droidmaster\e[0m\n"
 }
 
-[[ -n $1 ]] && {
-      case "$1" in
-            -u|UMBRELLA)
-                  UMBRELLA
-                  ;;
-            -p|Packages)
-                  Packages
-                  ;;
-            -z|Oh-my-zsh)
-                  Oh-My-Zsh
-                  ;;
-            -t|Oh-my-Tmux)
-                  Oh-My-Tmux
-                  ;;
-            -v|Vim)
-                  Vim
-                  ;;
-            -n|Neovim)
-                  Neovim
-                  ;;
-            -i|i-Haklab)
-                  i-Haklab
-                  ;;
-            p10k)
-                  P10K
-                  ;;
-            Python)
-                  Python
-                  if [ "$(echo $?)" == "0" ]; then
-                        echo -en "\e[36mInstallation Successfully\e[0m\n";
-                  else
-                        echo -en "\e[31mE: \e[0mPackages functions. \e[0m\n"
-                  fi
-                  ;;
-            distro)
-                  Distro
-                  ;;
-            X11_distro)
-                  x11_distro
-                  ;;
-            X11_native)
-                  x11_native
-                  ;;
-            *)
-                  echo -en "\e[31m(⋯☣)\e[0mInput package, run pkg2install <package>\e[0m\n"
-                  ;;
-      esac
+main() {
+  case "$1" in
+    -u|UMBRELLA)
+      UMBRELLA
+      ;;
+    -p|Packages)
+      install_packages
+      ;;
+    -z|Oh-my-zsh)
+      Oh-My-Zsh
+      ;;
+    -t|Oh-my-Tmux)
+      Oh-My-Tmux
+      ;;
+    -v|Vim)
+      Vim
+      ;;
+    -n|Neovim)
+      Neovim
+      ;;
+    p10k)
+      P10K
+      ;;
+    Python)
+      Python
+      ;;
+    distro)
+      Distro
+      ;;
+    X11_distro)
+      x11_distro
+      ;;
+    X11_native)
+      x11_native
+      ;;
+    -|--help)
+      usage
+      ;;
+    *)
+      log "$E Invalid option '$1'."
+      usage
+      exit 1
+      ;;
+  esac
 }
+
+if [ -z "$1" ]; then
+  usage
+  exit 0
+fi
+
+main "$@"
