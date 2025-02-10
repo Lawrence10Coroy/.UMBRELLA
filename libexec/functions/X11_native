@@ -1,26 +1,101 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+
+source ${HOME}/.UMBRELLA/UMBRELLA/functions || { echo -en "\033[31mError:\033[33mFile 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
+
+DISPLAY=":0"
+PULSE_SERVER='127.0.0.1'
+PTIME=3
+E="${red}Error:${blue}"
+
+dependencies=("pulseaudio" "termux-x11" "xfce4-session")
+check_dependencies "${dependencies[@]}"
+
+log() {
+  local argv="$1"
+  echo -e "${yellow}[$(date '+%Y-%m-%d %H:%M:%S')]: ${blue}$argv${disable}"
+}
 
 # Kill open X11 processes
-kill -9 $(pgrep -f "termux.x11") 2>/dev/null
+kill_processes() {
+  log_data "Killing Termux X11 processes..."
+  local pids
+  pids=$(pgrep -f "termux.x11")
+  log "Killing Termux X11 processes..."
+  if [[ -z "$pids" ]]; then
+    log "No Termux X11 processes found."
+  else
+    if kill -9 $pids >/dev/null 2>&1; then
+      log "Termux X11 processes stopped."
+    else
+      log "$E Failed to stop Termux X11 processes."
+      exit 1
+    fi
+  fi
+}
 
 # Enable PulseAudio over Network
-pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1
+pulseaudio_() {
+  log_data "Starting PulseAudio..."
+  log "Starting PulseAudio..."
+  if pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=$PULSE_SERVER auth
+-anonymous=1" --exit-idle-time=-1 >/dev/null 2>&1; then
+    log "PulseAudio started successfully."
+  else
+    log "$E Failed to start PulseAudio."
+    exit 1
+  fi
+}
 
 # Prepare termux-x11 session
-export XDG_RUNTIME_DIR=${TMPDIR}
-termux-x11 :0 >/dev/null &
-
-# Wait a bit until termux-x11 gets started.
-sleep 3
+x11Session() {
+  export XDG_RUNTIME_DIR=${TMPDIR}
+  log_data "Preparing Termux-X11 session..."
+  log "Preparing Termux-X11 session..."
+  if nohup termux-x11 "$DISPLAY" >/dev/null 2>&1 & then
+    log "Termux-X11 session prepared."
+    sleep "$PTIME"  # Wait a bit until termux-x11 gets started.
+  else
+    log "$E Failed to prepare Termux-X11 session."
+    exit 1
+  fi
+}
 
 # Launch Termux X11 main activity
-am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity > /dev/null 2>&1
-sleep 1
-
-# Set audio server
-export PULSE_SERVER=127.0.0.1
+launch_activity() {
+  log_data "Launching Termux X11 main activity..."
+  log "Launching Termux X11 main activity..."
+  if ! am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity >/dev/null 2>&1; then
+    log "$E Failed to launch Termux X11 main activity."
+    exit 1
+  else
+    log "Termux X11 main activity launched."
+    sleep 1
+  fi
+  sleep 1
+}
 
 # Run XFCE4 Desktop
-env DISPLAY=:0 dbus-launch --exit-with-session xfce4-session & > /dev/null 2>&1
+desktop() {
+  # Set audio server
+  export PULSE_SERVER="$PULSE_SERVER"
+  log "Starting XFCE4 Desktop..."
+  log_data "Starting XFCE4 Desktop..."
+  if env DISPLAY="$DISPLAY" dbus-launch --exit-with-session xfce4-session >/dev/null 2>&1 & then
+    log "XFCE4 Desktop started successfully."
+  else
+    log "$E Failed to start XFCE4 Desktop."
+    exit 1
+  fi
+}
 
-exit 0
+main() {
+  kill_processes
+  pulseaudio_
+  x11Session
+  launch_activity
+  desktop
+  log "XFCE4 Desktop started successfully."
+  exit 0
+}
+
+main
