@@ -9,6 +9,7 @@ export MANPATH="/usr/local/man:$MANPATH"
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 #Compilation flags
 export ARCHFLAGS="-arch x86_64"
+eval "$(dircolors -b ~/.dircolors)"
 #Fix the Java Problems
 export _JAVA_AWT_WM_NONREPARENTING=1
 # Path to your oh-my-zsh installation.
@@ -79,8 +80,18 @@ function man() {
     /usr/bin/man $@
 }
 
+check-change() {
+  local file="${HOME}/.UMBRELLA/UMBRELLA/UMBRELLA.dat"
+  if [[ ! -f "$file" ]]; then
+    echo -e "\e[33mNo changes have been implemented!\e0m"
+    exit 1;
+  fi
+  bat --style=plain "$file"
+}
+
 function fzf-lovely() {
- command -v file >/dev/null || { pkg install file >/dev/null 2>&1; }
+  if ! command -v file >/dev/null;then pkg install file >/dev/null 2>&1; fi
+  
 if [ "$1" = "h" ]; then
   fzf -m --reverse --preview-window down:20 --preview '[[ $(file --mime {}) =~ binary ]] &&
                     echo {} is a binary file ||                                                     (bat --style=numbers --color=always {} ||
@@ -99,13 +110,6 @@ function archivos() {
   am start -a android.intent.action.VIEW -d "content://com.android.externalstorage.documents/root/primary" >/dev/null
 }
 
-function X11_distro() {
-  command -v proot-distro >/dev/null || { echo -en "\e[0;31m(⋯☣) \e[0;33mUMBRELLA CORPORACION need proot-distro. Run \e[0;34mpkg2install \e[0;31mproot-distro\e[0m\n" }
-
-  /data/data/com.termux/files/home/.UMBRELLA/libexec/functions/X11_distro
-
-}
-
 function df() {
   if test ! $(command -v duf) 1>/dev/null; then
     yes|pkg install duf >/dev/null;
@@ -113,22 +117,9 @@ function df() {
   command duf $1
 }
 
-function X11_native() {
-
-    command -v termux-x11 >/dev/null || { echo -en "\e[0;31m(⋯☣) \e[0;33mUMBRELLA CORPORACION need termux-X11. Run \e[0;34mpkg2install \e[0;31mX11_native\e[0m\n" }
-    /data/data/com.termux/files/home/.UMBRELLA/libexec/functions/X11_native >/dev/null 2>&1;
-
-}
-
 function du() {
   command du -hP $1;
 }
-
-function distro() {
-    command -v proot-distro >/dev/null || { echo -en "\e[0;31m(⋯☣) \e[0;33mUMBRELLA CORPORACION need proot-distro. Run \e[0;34mapt \e[0;31minstall \e[0;33mproot-distro\e[0m\n" }
-    /data/data/com.termux/files/home/.UMBRELLA/libexec/functions/distro
-
-  }
 
 function localhost() {
   command ifconfig 2>/dev/null|grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}'|grep -v 255|grep -v 127|tail -n 1;
@@ -146,7 +137,7 @@ function whoami() {
   if [ ! -f ~/.UMBRELLA/UMBRELLA/.user ]; then
     command whoami;
   else
-    cat ~/.UMBRELLA/UMBRELLA/.user|openssl enc -aes-256-cbc -md sha512 -a -d -pbkdf2 -iter 100000 -salt -pass pass:Secret@123#|awk 'NF{print $NF}'
+    cat ~/.UMBRELLA/UMBRELLA/.user|openssl enc -aes-256-cbc -md sha512 -a -d -pbkdf2 -iter 100000 -salt -pass pass:dynamic_key|awk 'NF{print $NF}'
   fi
 }
 
@@ -172,7 +163,8 @@ function rm() {
   command setterm --foreground default
   }
 
-if [[ ! "$PATH" == */data/data/com.termux/files/home/.UMBRELLA/libexec/functions* ]]; then PATH="${PATH:+${PATH}:}/data/data/com.termux/files/home/.UMBRELLA/libexec/functions";
-fi
+
+  if [[ ! "$PATH" == */data/data/com.termux/files/home/.UMBRELLA/libexec/functions* ]]; then PATH="${PATH:+${PATH}:}/data/data/com.termux/files/home/.UMBRELLA/libexec/functions";
+  fi
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
