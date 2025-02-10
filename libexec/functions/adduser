@@ -1,52 +1,85 @@
-#!/bin/bash
+#!/bin/env bash
 
-source ${HOME}/.UMBRELLA/UMBRELLA/variables
-source ${UMBRELLA}/functions
+source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33mFile 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
 
-[[ -z $1 ]] && {
-  printf "${yellow}For more help type ${green}UMBRELLA${yellow} [ ${red}-h${yellow} | ${red}--help${yellow} ] for helpper UMBRELLA CORPORATION.${default}\n"
+USER_FILE="${HOME}/.UMBRELLA/UMBRELLA/.user"
+ENCRYPT_KEY="dynamic_key"
+
+show_help() {
+  echo -e "${yellow}For more help, type ${green}UMBRELLA${yellow} [${red}-h${yellow} | ${red}--help${yellow}] for help UMBRELLA CORPORATION.${default}"
 }
 
-  [[ -n $1 ]] && {
-    touch ~/.UMBRELLA/UMBRELLA/.user
+encrypt_username() {
+  local user="$1"
+  echo "USER $user" | openssl enc -aes-256-cbc -md sha512 -a -pbkdf2 -iter 100000 -salt -pass pass:"${ENCRYPT_KEY}" > "${USER_FILE}"
+  echo -e "${blue}Username saved successfully.${default}"
+}
+
+validate_input() {
+  local input="$1"
+  if [[ -z "$input" ]]; then
+    echo -e "${red}Input cannot be empty. Please try again.${default}"
+    return 1
+  fi
+  return 0
+}
+
+get_username() {
+  while read -p "Input username: " user && ! validate_input "$user"; do
+    continue
+  done
+  echo "$user"
+}
+
+remove_username() {
+  log_data "Removing Username"
+  if [[ -f "${USER_FILE}" ]]; then
+    rm "${USER_FILE}" 2>/dev/null
+    echo -e "${blue}Username removed successfully.${default}"
+  else
+    echo -e "${yellow}No username found to remove.${default}"
+  fi
+}
+
+handle_options() {
   case "$1" in
     -n|--new)
-      if [ -z "$(cat ~/.UMBRELLA/UMBRELLA/.user )" ]; then
-        while read -p "Input username: " user && printf "\n" && [[ -z $user ]]
-        do
-          continue
-        done;
-
-        echo "USER $user"|openssl enc -aes-256-cbc -md sha512 -a -pbkdf2 -iter 100000 \
-          -salt -pass pass:Secret@123# > ~/.UMBRELLA/UMBRELLA/.user;
-        echo -en "\e[36mUsername saved successfully.\n"
+      if [[ -f "${USER_FILE}" && -s "${USER_FILE}" ]]; then
+        read -p "[Y/N] Do you want to change your username? " opt
+        if [[ "$opt" =~ ^[Yy]$ ]]; then
+          log_data "Change username"
+          user=$(get_username)
+          encrypt_username "$user"
         else
-          read -p "[Y/N] Do you want to change your username?: " opt && printf "\n"
-          [[ -z $opt ]] && { exit 0; }
-          [[ $opt == "n" ]] || [[ $opt == "N" ]] && { exit 0; }
-          [[ $opt == "y" ]] || [[ $opt == "Y" ]] && { while read -p "${yellow}Input username: ${default}" user && printf "\n" && [[ -z $user ]]
-            do
-              continue
-            done
-            echo "USER $user"|openssl enc -aes-256-cbc -md sha512 -a -pbkdf2 -iter 100000 \
-              -salt -pass pass:Secret@123# > ~/.UMBRELLA/UMBRELLA/.user
-            echo -en "\e[36mUsername saved successfully.\n"
-            }
+          echo -e "${yellow}Username remains unchanged.${default}"
+        fi
+      else
+        log_data "Add username"
+        user=$(get_username)
+        encrypt_username "$user"
       fi
       ;;
     -r|--remove)
-      while read -p "[Y/N] Want to delete your username?: " opt && printf "\n" && [[ -z $opt ]]
-      do
-        continue
-      done
-      [[ $opt == "N" ]] || [[ $opt == "n" ]] && { exit 0; }
-      [[ $opt == "y" ]] || [[ $opt == "Y" ]] && {
-        rm ~/.UMBRELLA/UMBRELLA/.user 2>/dev/null;
-        echo -en "\e[36mUsername removed successfully\n"
-      }
+      read -p "[Y/N] Do you want to delete your username? " opt
+      if [[ "$opt" =~ ^[Yy]$ ]]; then
+        remove_username
+      else
+        echo -e "${yellow}Username deletion canceled.${default}"
+      fi
+      ;;
+    -h|--help)
+      show_help
       ;;
     *)
-      about
+      info
+      exit 1;
       ;;
   esac
 }
+
+# Inicio del script
+if [[ -z "$1" ]]; then
+  show_help
+else
+  handle_options "$1"
+fi
