@@ -1,16 +1,39 @@
 #!/usr/bin/env bash
 
-a=$(mktemp);
-if [ -d /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs ]; then
-  command ls /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs &> $a;
-fi
+source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33mFile 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
 
-  b="$(cat $a | awk '{print $1}')";
-  if [ -d /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${b}/home ]; then
-    command ls /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${b}/home > $a;
-    b="$(cat $a | awk '{print $1}')";
+E="${red}Error:${blue}"
+
+check_dependencies proot-distro
+
+log() {
+  local argv="$1"
+  echo -e "${yellow}[$(date '+%Y-%m-%d %H:%M:%S')]: ${blue}$argv${disable}"
+}
+
+distro() {
+  local a=$(mktemp);
+  log_data "Check files rootfs"
+  log "Check files rootfs"
+  if [ -d ${PREFIX}/var/lib/proot-distro/installed-rootfs ]; then
+    command ls ${PREFIX}/var/lib/proot-distro/installed-rootfs &> $a;
+  else
+    log "$E Directory 'installed-rootfs' does not exist!. You need install rootfs, run proot-distro list."
+    exit 1
+  fi
+
+  b="$(awk '{print $1}' < "$a")"
+  log_data "Check files home distribution"
+  log "Check files home distribution"
+  if [ -d ${PREFIX}/var/lib/proot-distro/installed-rootfs/${b}/home ]; then
+    command ls ${PREFIX}/var/lib/proot-distro/installed-rootfs/${b}/home > $a;
+    b="$(awk '{print $1}' < "$a")";
     exec proot-distro login debian --user ${b};
   else
-    echo -en "\e[0;33mYou have to install a distribution. Run \e[0;34mpkg2install \e[0;31mdistro.\e[0m\n";
+    log "$E You have to install a distribution. Run ${green}pkg2install ${red}distro."
+    exit 1
     fi
   exec rm ${a} &>/dev/null;
+}
+
+distro
