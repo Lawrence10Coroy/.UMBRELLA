@@ -1,20 +1,20 @@
 #!/bin/bash
 #
-source ${HOME}/.UMBRELLA/UMBRELLA/functions
-source ${UMBRELLA}/variables
-   [[ -z $1 ]] && {
-   theme red;
-   helpper;
-   exit 1;
- }
-   [[ -n $1 ]] && {
-   if [ $1 = '-h' ] || [ $1 = '--help' ]; then
-theme red
-     helpper;
-     exit 0;
-   elif [ $1 = '-v' ] || [ $1 = '--version' ]; then
+source ${HOME}/.UMBRELLA/UMBRELLA/functions || { echo -en "\033[31mError:\033[33m File 'functions' is required but not exist!.\033[0m\n"; exit 1; }
+
+if [[ -z "$1" ]]; then info ; exit 1 ;fi
+case $1 in
+  -h|--help)
+    theme red
+    helpper
+    log_data "Get help UMBRELLA CORPORATION"
+     exit 0
+     ;;
+   -v|--version)
      printf "${yellow}☣ U M B R E L L A  C O R P O R A T I O N ☣\n$version © 2023 by LAWRENCE COROY${default}\n"
-	 else
-		 about
-	 fi
- }
+     log_data "Get version"
+     ;;
+   *) echo -e "${red}Error:${yellow} Options '$1' invalid!.${default}"
+     info ; exit 1;
+     ;;
+ esac
