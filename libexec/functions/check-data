@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+
+source ${HOME}/.UMBRELLA/UMBRELLA/functions || { echo -en "\033[31mError:\033[33m File 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
+
+file="${UMBRELLA}/UMBRELLA.dat"
+E="${red}[✖] Error:${yellow}"
+
+if [[ ! -f "$file" ]]; then
+  echo -e "\e[33mNo changes have been implemented!\e0m"
+  exit 1
+fi
+
+log() {
+  local argv="$1"
+  echo -e "${yellow}$argv${default}"
+}
+
+usage() {
+  printf "${yellow}Usage:${green} check-data ${yellow} [ -h | -n | -r | s ] to show the changes implemented.
+
+    Options:
+    ${green}check-data${yellow}                          ┆┅┅┅┅┅┅┆ Show the processes and data made of changes or customization of UMBRELLA CORPORATION.
+    ${red}-h${yellow} ┆┄┄┄┄┄┄┆ ${red}--help${yellow}                  ┆┅┅┅┅┅┅┆ Menu help check-data.
+    ${red}-p${yellow} ┆┄┄┄┄┄┄┆ ${red}--process_does${yellow}          ┆┅┅┅┅┅┅┆ Shows the number of processes performed.
+    ${red}-c${yellow} ┆┄┄┄┄┄┄┆ ${red}--clear${yellow}                 ┆┅┅┅┅┅┅┆ Clear all processes.
+    ${red}-n${yellow} ┆┄┄┄┄┄┄┆ ${red}--line-number < n >${yellow}     ┆┅┅┅┅┅┅┆ To prevent the implementation n.
+        Example: check-data -n 10       ┆┅┅┅┅┅┅┆ Present the number 10 process
+    ${red}-r${yellow} ┆┄┄┄┄┄┄┆ ${red}--range-line < n-n >${yellow}    ┆┅┅┅┅┅┅┆ To prevent implementations from n1 to n2.
+        Example: check-data -r 5-10     ┆┅┅┅┅┅┅┆ Process presale number 5 to 10
+    ${red}-s${yellow} ┆┄┄┄┄┄┄┆ ${red}--several-lines < n-n >${yellow} ┆┅┅┅┅┅┅┆ To prevent implementations n1 and n2.
+        Example: check-data -s 3-7      ┆┅┅┅┅┅┅┆ Present process 3 and 7${default}\n\n"
+}
+
+valid_argv() {
+  local argv="$1"
+  if [[ -z "$argv" ]];then
+    log "$E Option '$opt' requires an argument." >&2
+    usage
+    exit 1
+  fi
+}
+
+valid_number() {
+  local argv="$1"
+  local count_line="$(wc --lines $file | awk '{print $1}')"
+  if [[ ! "$argv" =~ ^[0-9]+$ ]]; then
+    log "$E '$argv' is not a number."
+    usage
+    exit 1;
+  elif [[ "$argv" -eq 0 ]];then
+    log "$E Invalid number '$argv'."
+    exit 1;
+  elif [[ "$argv" -gt "$count_line" ]]; then
+    log "$E The '$argv' is out limit of process performed!."
+    exit 1;
+  fi
+}
+
+process_does() {
+  local process="$(wc --lines $file|awk '{print $1}')"
+
+  if [[ "$process" -eq 0 ]]; then
+    log "Has not carried out any process."
+    exit 0;
+  else
+    log "'$process' processes have bern performed."
+    exit 0;
+  fi
+}
+
+clear_data() {
+  local argv
+  builtin read -p "This action will irreversible delete your process data. Are you sure? [y/N]    " argv
+
+  if [[ -f "$file" ]]; then
+    if [[ "$argv" =~ ^[yY]$ ]]; then
+      rm "$file" >/dev/null 2>&1;
+      echo -e "${blue}Username removed successfully.${default}"
+      exit 0
+    else
+      echo -e "${yellow}Process data deletion canceled.${default}"
+      exit 0
+    fi
+  else
+    echo -e "${yellow}None processes in file data.${default}"
+    exit 0
+  fi
+}
+
+line_number() {
+  local argv="$1"
+  valid_argv "$argv"
+  case "$argv" in
+    *[0-9]*)
+      valid_number "$argv"
+      awk "NR == $argv" "$file" | bat --theme 'base16-256' --plain
+      ;;
+    --end)
+      awk 'END {print}' "$file" | bat --theme 'base16-256' --plain
+      ;;
+    --start)
+      awk "NR == 1" "$file" | bat --theme 'base16-256' --plain
+      ;;
+  esac
+}
+
+range_line() {
+
+  local argv="$1"
+  valid_argv "$argv"
+  valid_number "${argv%-*}"
+  valid_number "${argv#*-}"
+  awk "NR >= ${argv%-*} && NR <= ${argv#*-}" "$file" | bat --theme 'base16-256' --plain
+}
+
+several_line() {
+  local argv="$1"
+  valid_argv "$argv"
+  valid_number "${argv%-*}"
+  valid_number "${argv#*-}"
+  awk "NR == ${argv%-*} || NR == ${argv#*-}" "$file" | bat --theme 'base16-256' --plain
+}
+
+main() {
+  local opt="$1"
+  local argv="$2"
+  case $opt in
+    -c|--clear)
+      clear_data
+      ;;
+    -n|--line-number)
+      line_number "$argv"
+      ;;
+    -r|--range-line)
+      range_line "$argv"
+      ;;
+    -s|--several-line)
+      several_line "$argv"
+      ;;
+    -p|--process)
+      process_does
+      ;;
+    -h|--help) usage ; exit 0 ;;
+    *) echo -e "\033[31m${E}\033[33m No valid option provided.\033[0m"
+      ;;
+  esac
+}
+
+if [[ -z "$1" ]]; then
+  bat --theme 'base16-256' --plain "$file"
+  exit 0
+fi
+
+main "$@"
+
