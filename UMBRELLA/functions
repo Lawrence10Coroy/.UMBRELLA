@@ -2,7 +2,18 @@
 #Useful functions for customization of the Umbrella
 source "${HOME}/.UMBRELLA/UMBRELLA/variables" || { echo -en "\033[31mError:\033[33m File 'variables' is required but not exist!.\033[0m\n" ; exit 1; }
 
-LOGFILE="${HOME}/.UMBRELLA/UMBRELLA/UMBRELLA.dat"
+log() {
+  local argv="$1"
+  echo -e "${blue}$argv${default}"
+}
+export -f log
+
+error() {
+  local argv="$1"
+  log "$E $argv"
+  log "Verify the error in $LOG_FILE"
+}
+export -f error
 
 log_data() {
   if [ ! -f "$LOGFILE" ]; then touch "$LOGFILE"; fi
@@ -42,6 +53,14 @@ theme() {
 }
 export -f theme
 
+update_system() {
+  log "$A Update system ... "
+  if ! pkg update && upgrade -y &>>"$LOG_FILE"; then
+    error "The dependencies could not be updated!."
+  fi
+}
+export -f update_system
+
 check_dependencies() {
   local argv=("$@")
   for dep in "${argv[@]}"; do
@@ -53,6 +72,24 @@ check_dependencies() {
   done
 }
 export -f check_dependencies
+
+install_dependencies() {
+  local dependencies=("$@")
+
+  for dep in "${dependencies[@]}"; do
+    log_data "Checking $dep "
+    if command -v "$dep" &>/dev/null; then
+      log "$D $dep Already is installed!."
+    else
+      log "$A Installing dependencies $dep...  "
+      if ! pkg install -y "$dep"; then
+        error "Could not be installed '$dep'."
+      fi
+      log "$D $dep Installed Successfully!."
+    fi
+  done
+}
+export -f install_dependencies
 
 helpper() {
   printf "${yellow}☣ U M B R E L L A ☣ C O R P O R A T I O N ☣ ${version} (c) by LAWRENCE •‣ It is a custom configuration tool that makes it simple to perform basic tasks. At Umbrella Corporation we believe that nothing is impossible. If you can imagine it, you can create it!. The following is the help menu that provides you with the available tools that you can use to make using our tool easier.\nSyntax: COMMANDS [-args-] [-descriptions-]\n 
