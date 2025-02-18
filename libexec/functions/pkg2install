@@ -4,10 +4,7 @@
 # DESCRIPCIÓN: Script para automatizar la instalación de herramientas y configuraciones en Termux.
 
 source ${HOME}/.UMBRELLA/UMBRELLA/functions || { echo -en "\033[31mError:\033[33mFile 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
-E="${red}[✖] Error:${blue}"
-D="${green}[✔]${blue}"
-A="${green}[+]${blue}"
-LOG_FILE="${HOME}/.UMBRELLA/UMBRELLA/.log"
+
 [ ! -f "$LOG_FILE" ] && touch "$LOG_FILE"
 
 log() {
