@@ -1,19 +1,26 @@
-#!/usr/bin/bash
-#
-if [ ! -x ${bin}/ecuador-id ]; then
-    echo -en "\e[1;4;38;5;253mInstalling dependencies for ecuador-id...\e[0m\n"
-    yes|pkg update && pkg upgrade
-    yes|pkg install python
-    yes|pkg install wget
-    python3 -m pip install --upgrade pip &>/dev/null;
-    wget https://raw.githubusercontent.com/Darkmux/phoenix-packages/main/tools/Ecuador-ID.zip -O $PREFIX/etc/Ecuador-ID.zip
-    cd $PREFIX/etc
-    unzip Ecuador-ID.zip
-    mv Ecuador-ID $PREFIX/opt
-    rm -rf Ecuador-ID.zip
+#!/usr/bin/env bash
+#Useful functions for customization of the Umbrella
+source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33m File 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
+
+main() {
+  local bin=("git" "python" "wget")
+
+  if [ ! -x ${bin}/ecuador-id ]; then
+    install_dependencies "${bin[@]}"
+    log "Installing dependencies for ecuador-id ... "
+    update_system
+
+    if wget https://raw.githubusercontent.com/Darkmux/phoenix-packages/main/tools/Ecuador-ID.zip -O $PREFIX/etc/Ecuador-ID.zip; then
+      error "It could not be installed the package!."
+      exit 1
+    fi
+    unzip "$PREFIX/etc/Ecuador-ID.zip"
+    mv $PREFIX/etc/Ecuador-ID $PREFIX/opt
+    rm $PREFIX/etc/Ecuador-ID.zip
     cd $PREFIX/opt/Ecuador-ID
     python3 -m pip install tabulate
     touch $PREFIX/bin/ecuador-id
+
     cat <<- Confg > $PREFIX/bin/ecuador-id
 #!/bin/bash
 EcuadorID="/data/data/com.termux/files/usr/opt/Ecuador-ID"
@@ -21,11 +28,13 @@ cd \${EcuadorID}
 exec python3 "\${EcuadorID}/Ecuador-ID.py" "\$@"
 Confg
     chmod 711 $PREFIX/bin/ecuador-id
-    printf "\e[1;38;5;253mDone!
-    Please Execute:
+    log "$D Done!"
+    log "Please Execute:"
+    echo
+    log "ecuador-id <argv>"
+  else
+    log "$D Already Installed!"
+  fi
+}
 
-    ecuador-id\e[0m\n"
-else
-    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
-fi
-
+main

@@ -1,13 +1,17 @@
-#!/usr/bin/bash
-#
-if [ ! -x $PREFIX/bin/dirb ]; then
-    echo -en "\e[1;4;38;5;253mInstalling dependencies for dirb...\e[0m\n"
-    yes|pkg update && pkg upgrade
-    yes|pkg install dirb
-    printf "\e[1;38;5;253mDone!
-    Please Execute:
+#!/usr/bin/env bash
+#Useful functions for customization of the Umbrella
+source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33m File 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
 
-    dirb <argv>\e[0m\n"
+if [ ! -x $PREFIX/bin/dirb ]; then
+  log"Installing dependencies for dirb ... "
+  if ! pkg install dirb -y; then
+    error "It could not be installed the package!."
+    exit 1
+  fi
+  log "$D Done!"
+  log "Please Execute:"
+  echo
+  log "dirb <argv>"
 else
-    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+  log "$D Already Installed!"
 fi

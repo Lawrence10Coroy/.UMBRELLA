@@ -1,14 +1,19 @@
-#!/usr/bin/bash
-#
-if [ ! -x $PREFIX/bin/infoga ]; then
-    echo -en "\e[1;4;38;5;253mInstalling dependencies for infoga...\e[0m\n"
-    yes|pkg update && pkg upgrade
-    yes|pkg install python
-    python3 -m pip install --upgrade pip &>/dev/null;
+#!/usr/bin/env bash
+#Useful functions for customization of the Umbrella
+source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33m File 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
+
+main() {
+  local bin=("git" "python3")
+  if [ ! -x $PREFIX/bin/infoga ]; then
+    install_dependencies "${bin[@]}"
+    log "Installing dependencies for infoga ... "
+    update_system
     git clone https://github.com/m4ll0k/Infoga $PREFIX/opt/Infoga
-    cd $PREFIX/opt/Infoga
-    python3 -m pip install -r requirements.txt
-    python3 setup.py install
+    if ! python3 -m pip install -r "$PREFIX/opt/Infoga/requirements.txt";then
+      error "It could not be installed the package!."
+      exit 1
+    fi
+    python3 $PREFIX/opt/Infoga/setup.py install
     touch $PREFIX/bin/infoga
     cat <<- Confg > $PREFIX/bin/infoga
 #!/bin/bash
@@ -17,10 +22,13 @@ cd \${infoga}
 exec python3 "\${infoga}/infoga.py" "\$@"
 Confg
     chmod 711 $PREFIX/bin/infoga
-    printf "\e[1;38;5;253mDone!
-    Please Execute:
+    log "$D Done!"
+    log "Please Execute:"
+    echo
+    log "infoga <argv>"
+  else
+    log "$D Already Installed!"
+  fi
+}
 
-    infoga <argv>\e[0m\n";
-else
-    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
-fi
+main

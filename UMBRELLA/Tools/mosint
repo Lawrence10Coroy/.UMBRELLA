@@ -1,18 +1,25 @@
-#!/usr/bin/bash
-#
-if [ ! -x $PREFIX/bin/mosint ]; then
-    echo -en "\e[1;4;38;5;253mInstalling dependencies for mosint...\e[0m\n"
-    yes|pkg update && pkg upgrade
-    yes|pkg install golang
+#!/usr/bin/env bash
+#Useful functions for customization of the Umbrella
+source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33m File 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
+
+main() {
+  local bin=("git" "golang")
+
+  if [ ! -x $PREFIX/bin/mosint ]; then
+    log "Installing dependencies for mosint ... "
+    install_dependencies "${bin[@]}"
     git clone https://github.com/alpkeskin/mosint $PREFIX/opt/mosint
     cd $PREFIX/opt/mosint
     go get && go build
-    ln -s $PREFIX/opt/mosint/mosint $PREFIX/bin/mosint
+    cd && ln -s $PREFIX/opt/mosint/mosint $PREFIX/bin/mosint
     chmod 777 $PREFIX/bin/mosint
-    printf "\e[1;38;5;253mDone!
-    Please Execute:
+    log "$D Done!"
+    log "Please Execute:"
+    echo
+    log "mosint <argv>"
+  else
+    log "$D Already Installed!"
+  fi
+}
 
-    mosint <argv>\e[0m\n"
-else
-    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
-fi
+main

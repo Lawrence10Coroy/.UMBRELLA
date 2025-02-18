@@ -1,20 +1,30 @@
-#!/usr/bin/bash
-#
-if [ ! -x $PREFIX/bin/aquatone ]; then
-    echo -en "\e[1;4;38;5;253mInstalling dependencies for aquatone...\e[0m\n"
-    yes|pkg update && pkg upgrade &>/dev/null;
-    yes|pkg install ruby
-    gem install aquatone
+#!/usr/bin/env bash
+#Useful functions for customization of the Umbrella
+source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33m File 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
+
+main() {
+  local bin=("ruby")
+  if [ ! -x $PREFIX/bin/aquatone ]; then
+    update_system
+    install_dependencies "${bin[@]}"
+    log "$A Installing dependencies for aquatone ... "
+    if ! gem install aquatone; then
+      error "It could not be installed the package!."
+      exit 1
+    fi
     touch $PREFIX/bin/aquatone
     cat <<- Confg > $PREFIX/bin/aquatone
 #!/usr/bin/bash
 aquatone-discover "\$@"
 Confg
     chmod 711 $PREFIX/bin/aquatone
-    printf "\e[1;38;5;253mDone!
-    Please Execute:
+    log "$D Done!"
+    log "Please Execute:"
+    echo
+    log "aquatone <argv>"
+  else
+    log "$D Already Installed!"
+  fi
+}
 
-    aquatone <argv>\e[0m\n";
-else
-    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
-fi
+main

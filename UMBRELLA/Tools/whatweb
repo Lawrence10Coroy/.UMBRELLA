@@ -1,9 +1,14 @@
-#!/usr/bin/bash
-#
-if [ ! -x $PREFIX/bin/whatweb ]; then
-    echo -en "\e[1;4;38;5;253mInstalling dependencies for whatweb...\e[0m\n"
-    yes|pkg update && pkg upgrade
-    yes|pkg install ruby
+#!/usr/bin/env bash
+#Useful functions for customization of the Umbrella
+source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33m File 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
+
+main() {
+  local bin=("ruby")
+
+  if [ ! -x $PREFIX/bin/whatweb ]; then
+    update_system
+    install_dependencies "${bin[@]}"
+    log "$A Installing dependencies for whatweb ... "
     git clone https://github.com/urbanadventurer/WhatWeb $PREFIX/opt/WhatWeb
     cd $PREFIX/opt/WhatWeb
     bundle install
@@ -16,10 +21,13 @@ cd \${whatweb}
 exec ruby "\${whatweb}/whatweb" "\$@"
 Confg
     chmod 711 $PREFIX/bin/whatweb
-    printf "\e[1;38;5;253mDone!
-    Please Execute:
-
-    whatweb <argv>\e[0m\n"
+    log "$D Done!"
+    log "Please Execute:"
+    echo
+    log "whatweb <argv>"
 else
-    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+    log "$D Already Installed!"
 fi
+}
+
+main

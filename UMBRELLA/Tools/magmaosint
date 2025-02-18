@@ -1,22 +1,42 @@
-#!/usr/bin/bash
-#
+#!/usr/bin/env bash
+#Useful functions for customization of the Umbrella
+source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33m File 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
+
+main() {
+  local bin=("git" "python3" "wget" "unzip")
+
 if [ ! -x $PREFIX/bin/magmaosint ]; then
-    echo -en "\e[1;4;38;5;253mInstalling dependencies for magmaosint...\e[0m\n"
-    yes|pkg update && pkg upgrade
-    yes|pkg install python
-    yes|pkg install wget
-    python3 -m pip install --upgrade pip &>/dev/null;
-    python3 -m pip install fuzzywuzzy
-    python3 -m pip install requests
-    python3 -m pip install google
-    python3 -m pip install colorama
-    wget https://raw.githubusercontent.com/Darkmux/phoenix-packages/main/tools/MagmaOsint.zip -O $PREFIX/etc/MagmaOsint.zip
-    cd $PREFIX/etc
-    unzip MagmaOsint.zip
-    mv MagmaOsint $PREFIX/opt/
-    rm -rf MagmaOsint.zip
-    cd $PREFIX/opt/MagmaOsint
-    python3 -m pip install -r requirements.txt &>/dev/null;
+    log "Installing dependencies for magmaosint ... "
+    update_system
+    if ! python3 -m pip install fuzzywuzzy; then
+      error "It could not be installed the package!."
+      exit 1
+    fi
+    if ! python3 -m pip install requests; then
+      error "It could not be installed the package!."
+      exit 1
+    fi
+    if ! python3 -m pip install google; then
+      error "It could not be installed the package!."
+      exit 1
+    fi
+    if ! python3 -m pip install colorama; then
+      error "It could not be installed the package!."
+      exit 1
+    fi
+    if wget https://raw.githubusercontent.com/Darkmux/phoenix-packages/main/tools/MagmaOsint.zip -O $PREFIX/etc/MagmaOsint.zip; then
+    unzip "$PREFIX/etc/MagmaOsint.zip"
+    mv "$PREFIX/etc/MagmaOsint" $PREFIX/opt
+    rm "$PREFIX/etc/MagmaOsint.zip"
+  else
+    error "It could not be installed the package!."
+      exit 1
+    fi
+    if python3 -m pip install -r "$PREFIX/opt/MagmaOsint/requirements.txt" &>/dev/null; then
+      error "It could not be installed the package!."
+      exit 1
+    fi
+
     touch $PREFIX/bin/magmaosint
     cat <<- Confg > $PREFIX/bin/magmaosint
 #!/bin/bash
@@ -25,10 +45,13 @@ cd \${magmaosint}
 exec python3 "\${magmaosint}/osint.py" "\$@"
 Confg
     chmod 711 $PREFIX/bin/magmaosint
-    printf "\e[1;38;5;253mDone!
-    Please Execute:
+    log "$D Done!"
+    log "Please Execute:"
+    echo
+    log "magmaosint <argv>"
+  else
+    log "$D Already Installed!"
+  fi
+}
 
-    magmaosint\e[0m\n";
-else
-    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
-fi
+main

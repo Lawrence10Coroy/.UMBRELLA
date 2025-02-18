@@ -1,17 +1,20 @@
-#!/usr/bin/bash
-#
-if [ ! -x $PREFIX/bin/buster ]; then
-    echo -en "\e[1;4;38;5;253mInstalling dependencies for hash-buster...\e[0m\n"
-    yes|pkg update && pkg upgrade
-    yes|pkg install python
-    python3 -m pip install --upgrade pip &>/dev/null;
+#!/usr/bin/env bash
+#Useful functions for customization of the Umbrella
+source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33m File 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
+
+main() {
+  local bin=("git" "python3")
+
+  if [ ! -x $PREFIX/bin/buster ]; then
+    log "Installing dependencies for hash-buster ..."
+    update_system
     git clone https://github.com/s0md3v/Hash-Buster $PREFIX/opt/Hash-Buster
     ln -s $PREFIX/opt/Hash-Buster/hash.py $PREFIX/bin/buster
-    chmod 711 $PREFIX/bin/buster
-    printf "\e[1;38;5;253mDone!
-    Please Execute:
-
-    buster <argv>\e[0m\n";
-else
-    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
-fi
+    log "$D Done!"
+    log "Please Execute:"
+    echo
+    log "buster <argv>"
+  else
+    log "$D Already Installed!"
+  fi
+}

@@ -1,10 +1,16 @@
-#!/usr/bin/bash
-#
-if [ ! -x $PREFIX/bin/cupp ]; then
-    echo -en "\e[1;4;38;5;253mInstalling dependencies for cupp...\e[0m\n"
-    yes|pkg update && pkg upgrade
-    yes|pkg install python
-    python3 -m pip install --upgrade pip &>/dev/null;
+#!/usr/bin/env bash
+#Useful functions for customization of the Umbrella
+source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033
+[33m File 'functions' is required but not exist!.\033[0m\n" ; exit 1; }        
+main() {
+  local bin=("git" "python3")
+
+  if [ ! -x $PREFIX/bin/cupp ]; then
+    install_dependencies "${bin[@]}"
+    log "Installing dependencies for cupp ... "
+
+    update_system
+
     git clone https://github.com/Mebus/cupp $PREFIX/opt/cupp
     touch $PREFIX/bin/cupp
     cat <<- Confg > $PREFIX/bin/cupp
@@ -14,10 +20,13 @@ cd \${cupp}
 exec python3 "\${cupp}/cupp.py" "\$@"
 Confg
     chmod 711 $PREFIX/bin/cupp
-    printf "\e[1;38;5;253mDone!
-    Please Execute:
+    log "$D Done!"
+    log "Please Execute:"
+    echo
+    log "cupp <argv>"
+  else
+    log "$D Already Installed!"
+  fi
+}
 
-    cupp <argv>\e[0m\n";
-else
-    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
-fi
+main
