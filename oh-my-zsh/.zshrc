@@ -3,7 +3,6 @@
 
 # Disable Powerlevel10k configuration wizard
 POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
-
 # Set up PATH and environment variables
 export PATH="$HOME/bin:/usr/local/bin:$PATH"
 export MANPATH="/usr/local/man:$MANPATH"
@@ -62,6 +61,7 @@ alias hg="history | grep -i"
 alias cat="$PREFIX/bin/bat --style=plain"
 alias can="cat"
 alias vim="nvim"
+alias mysql="mariadb"
 alias cl="clear"
 alias fzf-lovely="fzf-lovely h"
 
@@ -80,15 +80,43 @@ function man() {
 
 function fzf-lovely() {
   if ! command -v file >/dev/null;then
-    pkg install file >/dev/null 2>&1
+    pkg install file -y
+    clear
+  fi
+  if ! command -v t3highlight >/dev/null; then
+    pkg install libt3highlightn -y
+    clear
+  fi
+  if ! command -v vim >/dev/null; then
+    pkg install vim -y
+    if [ -f ~/.vimrc ]; then rm ~/.vimrc; fi
+cat <<- confg > ${HOME}.vimrc
+set tabstop=2
+set mouse=r
+set autoindent
+set expandtab
+set shiftwidth=2
+set encoding=utf-8
+set ignorecase
+
+let mapleader=" "
+
+nnoremap <Leader>w :w<CR>
+nnoremap <Leader>q :q<CR>
+nnoremap <C-d> :q!<CR>
+
+let g:indentLine_color_term = 126
+let g:indentLine_char_list = ['⁞','⁑','╏','┃','┋']
+confg
+    clear
   fi
 
-  local preview_cmd='[[ $(file --mine {}) =~ binary ]] && echo {} is a binary file || (bat -f --theme base16-256 --style=numbers {} || highlightn -O ansi -l {} || coderay {} || rougify {} || cat {}) 2>/dev/null | head -500'
+  local preview_cmd='[[ $(file --mime {}) =~ binary ]] && echo {} Is a binary file || (bat -f --theme base16-256 --style=plain {} || t3highlight --language=Shell {} || coderay {}) 2>/dev/null || head -500'
 
   if [[ "$1" = "h" ]]; then
-    fzf -m --reverse --preview-window down:20 --preview "$preview_cmd"
+    fzf -m --reverse --preview-window down:20 --preview "$preview_cmd" --bind "enter:execute(vim {})"
   else
-    fzf -m --preview "$preview_cmd"
+    fzf -m --preview "$preview_cmd" --bind "enter:execute(vim {})"
   fi
 }
 
