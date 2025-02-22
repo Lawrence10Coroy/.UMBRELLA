@@ -58,7 +58,6 @@ alias bat="bat -f --theme 'base16-256'"
 alias ipa="ip -brief a"
 alias getip="wget http://checkip.dyndns.org/ -O - -o /dev/null | cut -d: -f 2 | cut -d\< -f 1 | sed 's/ //g'"
 alias hg="history | grep -i"
-alias cat="$PREFIX/bin/bat --style=plain"
 alias can="cat"
 alias vim="nvim"
 alias mysql="mariadb"
@@ -67,6 +66,10 @@ alias fzf-lovely="fzf-lovely h"
 
 # Custom Functions
 function man() {
+  if ! command -v man >/dev/null; then
+    apt-get install man -y 2>/dev/null
+    clear
+  fi
   env \
   LESS_TERMCAP_mb=$'\e[01;31m' \
   LESS_TERMCAP_md=$'\e[01;38;5;220m' \
@@ -80,24 +83,25 @@ function man() {
 
 function fzf-lovely() {
   if ! command -v file >/dev/null;then
-    pkg install file -y
+    apt-get install file -y 2>/dev/null
     clear
   fi
-  if ! command -v t3highlight >/dev/null; then
-    pkg install libt3highlightn -y
+  if ! command -v bat >/dev/null; then
+    apt-get install bat -y 2>/dev/null
     clear
   fi
   if ! command -v vim >/dev/null; then
-    pkg install vim -y
+    apt-get install vim -y 2>/dev/null
     if [ -f ~/.vimrc ]; then rm ~/.vimrc; fi
 cat <<- confg > ${HOME}.vimrc
 set tabstop=2
-set mouse=r
+set mouse=a
 set autoindent
 set expandtab
 set shiftwidth=2
 set encoding=utf-8
 set ignorecase
+syntax on
 
 let mapleader=" "
 
@@ -111,7 +115,7 @@ confg
     clear
   fi
 
-  local preview_cmd='[[ $(file --mime {}) =~ binary ]] && echo {} Is a binary file || (bat -f --theme base16-256 --style=plain {} || t3highlight --language=Shell {} || coderay {}) 2>/dev/null || head -500'
+  local preview_cmd='[[ $(file --mime {}) =~ binary ]] && echo {} Is a binary file || (bat -f --theme base16-256 --style=plain {}) 2>/dev/null || head -500'
 
   if [[ "$1" = "h" ]]; then
     fzf -m --reverse --preview-window down:20 --preview "$preview_cmd" --bind "enter:execute(vim {})"
@@ -124,8 +128,13 @@ function archivos() {
   am start -a android.intent.action.VIEW -d "content://com.android.externalstorage.documents/root/primary" >/dev/null
 }
 
+function cat() {
+  command -v bat >/dev/null || apt-get install bat -y 2>/dev/null;
+  $PREFIX/bin/bat --style=plain "$@"
+}
+
 function df() {
-  command -v duf >/dev/null || yes | pkg install duf >/dev/null
+  command -v duf >/dev/null || yes | apt-get install duf 2>/dev/null
   duf "$@"
 }
 
@@ -138,7 +147,7 @@ function localhost() {
 }
 
 function lock() {
-  command -v cacademo >/dev/null || apt install libcaca > /dev/null
+  command -v cacademo >/dev/null || apt-get install libcaca -y 2> /dev/null
   cacademo
 }
 
@@ -170,34 +179,69 @@ function traductor() {
   gawk -f <(curl -Ls git.io/translate) -- -shell
 }
 
-function rm() {
-  setterm --foreground yellow;
-  if [[ $# -eq 0 ]] && { command rm --help; return 1 }
+function rm () {
+  setterm --foreground yellow
 
-  case "$@" in
-    --help|-h) command rm --help ;;
-    *)
-      local files=("$@")
-      for file in "${files[@]}"; do
-        if [[ -d "$file" ]]; then
-          command rm -rf "$file" && echo "Done!"
-        elif [[ -a "$files" ]]; then
-          command -v scrub >/dev/null || yes | apt install scrub >/dev/null
-          command -v shred >/dev/null || yes | apt install shred >/dev/null
+  if [[ -z "$1" ]]; then
+    command rm --help
+    return 1
+  fi
 
-          scrub -p dod "$file"
-          shred -zun 10 -v "$file"
-          command rm -f "$file"
-          echo "Done"
-        else
-          echo "$0: cannot remove '$file': No such file or directory."
-          return 1
-        fi
-      done
-      ;;
-  esac
-  command setterm --foreground default
-  }
+  while [[ -n "$1" ]];do
+    if [[ -f "$1" ]]; then
+      command -v scrub > /dev/null || { apt-get install scrub -y 2> /dev/null }
+      command -v shred > /dev/null || { apt-get install shred -y 2> /dev/null }
+      scrub -p dod "$1"
+      shred -zun 10 -v "$1"
+      command rm -f "$1" 2> /dev/null
+      echo "Done!"
+
+    elif [[ -d "$1" ]]; then
+      command rm -rf "$1" && echo "Done!"
+    else
+      case "$1" in
+        --help | -h)
+          command rm --help
+          ;;
+        -f | --force)
+          if [[ -n "$2" ]]; then
+            command rm --force "$2" && echo "Done!"
+            return 0
+          else
+            echo "$0: missing operand"
+            echo "Try 'rm --help' for more information."
+            return 1
+          fi
+          ;;
+        -r | -R | --recursive)
+          if [[ -n "$2" ]]; then
+            command rm --recursive "$2" && echo "Done!"
+            return 0
+          else
+            echo "$0: missing operand"
+            echo "Try 'rm --help' for more information."
+            return 1
+          fi
+          ;;
+        -rf | "--recursive --force")
+          if [[ -n "$2" ]]; then
+            command rm -rf "$2" && echo "Done!"
+            return 0
+          else
+            echo "$0: missing operand"
+            echo "Try 'rm --help' for more information."
+            return 1
+          fi
+          ;;
+        *)
+          echo "$0: cannot remove '$1': No such file or directory."
+          return 1 ;;
+      esac
+    fi
+    shift
+  done
+  setterm --foreground default
+}
 
 # Add custom function to PATH
 if [[ ! "$PATH" == *$HOME/.UMBRELLA/libexec/functions* ]]; then
