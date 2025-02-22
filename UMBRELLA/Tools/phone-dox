@@ -1,18 +1,26 @@
-#!/usr/bin/bash
-#
-if [ ! -x $PREFIX/bin/phone-dox ]; then
-    echo -en "\e[1;4;38;5;253mInstalling dependencies for phone-dox...\e[0m\n"
-    yes|pkg update && pkg upgrade
-    yes|pkg install python
-    yes|pkg install wget
-    python3 -m pip install --upgrade pip &>/dev/null;
-    wget https://raw.githubusercontent.com/Darkmux/phoenix-packages/main/tools/Phone-dox.zip -O $PREFIX/tmp/Phone-dox.zip
-    cd $PREFIX/tmp
-    unzip Phone-dox.zip
-    mv Phone-dox $PREFIX/opt
-    rm -rf Phone-dox.zip
-    cd $PREFIX/opt/Phone-dox
-    python3 -m pip install -r requirements.txt &>/dev/null;
+#!/usr/bin/env bash
+#Useful functions for customization of the Umbrella
+source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33m File 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
+
+main() {
+  local bin=("wget" "unzip" "python")
+
+  if [ ! -x $PREFIX/bin/phone-dox ]; then
+    install_dependencies "${bin[@]}"
+    log "Installing dependencies for phone-dox ... "
+    update_system
+    if wget https://raw.githubusercontent.com/Darkmux/phoenix-packages/main/tools/Phone-dox.zip -O $PREFIX/tmp/Phone-dox.zip; then
+      unzip $PREFIX/tmp/Phone-dox.zip
+      mv $PREFIX/tmp/Phone-dox $PREFIX/opt
+      rm $PREFIX/tmp/Phone-dox.zip
+    else
+      error "It could not be installed the package!."
+      exit 1
+    fi
+    if ! python3 -m pip install -r $PREFIX/opt/Phone-dox/requirements.txt &>/dev/null; then
+      error "It could not be installed the package!."
+      exit 1
+    fi
     touch $PREFIX/bin/phone-dox
     cat <<- Confg > $PREFIX/bin/phone-dox
 #!/bin/bash
@@ -21,10 +29,13 @@ cd \${PhoneDox}
 exec python3 "\${PhoneDox}/phone.py" "\$@"
 Confg
     chmod 711 $PREFIX/bin/phone-dox
-    printf "\e[1;38;5;253mDone!
-    Please Execute:
+    log "$D Done!"
+    log "Please Execute:"
+    echo
+    log "phone-dox <argv>"
+  else
+    log "$D Already Installed!"
+  fi
+}
 
-    phone-dox <argv>\e[0m\n"
-else
-    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
-fi
+main

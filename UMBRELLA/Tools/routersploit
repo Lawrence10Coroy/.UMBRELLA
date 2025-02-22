@@ -1,16 +1,24 @@
-#!/usr/bin/bash
-#
-if [ ! -x $PREFIX/bin/routersploit ]; then
-    echo -en "\e[1;4;38;5;253mInstalling dependencies for routersploit...\e[0m\n"
-    yes|pkg update && pkg upgrade
-    yes|pkg install python make clang rust
-    python3 -m pip install --upgrade pip &>/dev/null;
-    yes|pkg install python-cryptography python-bcrypt
+#!/usr/bin/env bash
+#Useful functions for customization of the Umbrella
+source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33m File 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
+
+main() {
+  local bin=("git" "python" "make" "clang" "rust" "python-cryptography" "python-bcrypt")
+  if [ ! -x $PREFIX/bin/routersploit ]; then
+    install_dependencies "${bin[@]}"
+    log "Installing dependencies for routersploit ... "
+
+    update_system
     git clone https://github.com/threat9/routersploit $PREFIX/opt/routersploit
-    cd $PREFIX/opt/routersploit
-    python3 -m pip install -r requirements.txt &>/dev/null
-    python3 -m pip install -r requirements-dev.txt &>/dev/null;
-    python3 setup.py install
+    if ! python3 -m pip install -r $PREFIX/opt/routersploit/requirements.txt &>/dev/null; then
+      error "It could not be installed the package!."
+      exit 1
+    fi
+    if ! python3 -m pip install -r $PREFIX/opt/routersploit/requirements-dev.txt &>/dev/null; then
+      error "It could not be installed the package!."
+      exit 1
+    fi
+    python3 $PREFIX/opt/routersploit/setup.py install
     touch $PREFIX/bin/routersploit
     cat <<- Confg > $PREFIX/bin/routersploit
 #!/bin/bash
@@ -19,10 +27,13 @@ cd \${routersploit}
 exec python3 "\${routersploit}/rsf.py" "\$@"
 Confg
     chmod 711 $PREFIX/bin/routersploit
-    printf "\e[1;38;5;253mDone!
-    Please Execute:
+    log "$D Done!"
+    log "Please Execute:"
+    echo
+    log "routersploit <argv>"
+  else
+    log "$D Already Installed!"
+  fi
+}
 
-    routersploit <argv>\e[0m\n"
-else
-    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
-fi
+main

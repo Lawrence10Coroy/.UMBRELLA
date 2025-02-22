@@ -1,20 +1,27 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -x
 #Useful functions for customization of the Umbrella
 source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33m File 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
 
 main() {
-  local bin=("git" "golang")
+
+  local bin=("tar" "wget" "gzip")
 
   if [ ! -x $PREFIX/bin/gobuster ]; then
     install_dependencies "${bin[@]}"
     log "Installing dependencies for gobuster ... "
 
     update_system
-    git clone https://github.com/OJ/gobuster $PREFIX/opt/gobuster
-    cd $PREFIX/opt/gobuster
-    go get && go build
-    ln -s $PREFIX/opt/gobuster/gobuster $PREFIX/bin/gobuster
-    chmod 711 $PREFIX/bin/gobuster
+    if wget https://github.com/OJ/gobuster/releases/download/v3.6.0/gobuster_Linux_arm64.tar.gz; then
+      gzip --decompress -c gobuster_Linux_arm64.tar.gz > gobuster_Linux_arm64
+    fi
+      if command tar -xf gobuster_Linux_arm64; then
+      mv gobuster "${PREFIX}/bin"
+      rm gobuster_Linux_arm64
+      rm gobuster_Linux_arm64.tar.gz
+    else
+      error "It could not be installed the package!."
+      exit 1
+    fi
     log "$D Done!"
     log "Please Execute:"
     echo

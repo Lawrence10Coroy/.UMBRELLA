@@ -1,14 +1,19 @@
-#!/usr/bin/bash
-#
+#!/usr/bin/env bash
+#Useful functions for customization of the Umbrella
+source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33m File 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
+local bin=("git" "python3")
+
 if [ ! -x $PREFIX/bin/recon-ng ]; then
-    echo -en "\e[1;4;38;5;253mInstalling dependencies for recon-ng...\e[0m\n"
-    yes|pkg update && pkg upgrade
-    yes|pkg install python
-    python3 -m pip install --upgrade pip &>/dev/null;
+    install_dependencies "${bin[@]}"
+    log "Installing dependencies for recon-ng ... "
+    update_system
     git clone https://github.com/lanmaster53/recon-ng $PREFIX/opt/recon-ng
     cd $PREFIX/opt/recon-ng
-    chmod 711 recon-ng
-    python3 -m pip install -r REQUIREMENTS
+    chmod 711 $PREFIX/opt/recon-ng/recon-ng
+    if !python3 -m pip install -r $PREFIX/opt/recon-ng/REQUIREMENTS; then
+      error "It could not be installed the package!."
+      exit 1
+    fi
     touch $PREFIX/bin/recon-ng
     cat <<- Confg > $PREFIX/bin/recon-ng
 #!/bin/bash
@@ -17,10 +22,10 @@ cd \${reconng}
 exec python3 "\${reconng}/recon-ng" "\$@"
 Confg
     chmod 711 $PREFIX/bin/recon-ng
-    printf "\e[1;38;5;253mDone!
-    Please Execute:
-
-    recon-ng\e[0m\n"
-else
-    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
-fi
+    log "$D Done!"
+    log "Please Execute:"
+    echo
+    log "recon-gn <argv>"
+  else
+    log "$D Already Installed!"
+  fi

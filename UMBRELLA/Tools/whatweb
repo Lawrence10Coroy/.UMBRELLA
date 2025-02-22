@@ -3,16 +3,15 @@
 source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33m File 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
 
 main() {
-  local bin=("ruby")
+  local bin=("ruby" "git")
 
   if [ ! -x $PREFIX/bin/whatweb ]; then
     update_system
     install_dependencies "${bin[@]}"
     log "$A Installing dependencies for whatweb ... "
     git clone https://github.com/urbanadventurer/WhatWeb $PREFIX/opt/WhatWeb
-    cd $PREFIX/opt/WhatWeb
-    bundle install
-    chmod 711 whatweb
+    bundle $PREFIX/opt/WhatWeb/install
+    chmod 711 $PREFIX/opt/WhatWeb/whatweb
     touch $PREFIX/bin/whatweb
     cat <<- Confg > $PREFIX/bin/whatweb
 #!/bin/bash

@@ -1,19 +1,24 @@
-#!/usr/bin/bash
-#
-if [ ! -x $PREFIX/bin/sigit ]; then
-    echo -en "\e[1;4;38;5;253mInstalling dependencies for sigit...\e[0m\n"
-    yes|pkg update && pkg upgrade
-    yes|pkg install python
-    python3 -m pip install --upgrade pip &>/dev/null;
-    python3 -m pip install email_validator
-    git clone https://github.com/termuxhackers-id/SIGIT $PREFIX/opt/SIGIT
-    cd $PREFIX/opt/SIGIT
-    chmod 711 install.sh
-    bash install.sh
-    printf "\e[1;38;5;253mDone!
-    Please Execute:
+#!/usr/bin/env bash
+#Useful functions for customization of the Umbrella
+source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33m File 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
 
-    sigit <argv>\e[0m\n"
-else
-    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
-fi
+bin=("git" "python")
+
+if [ ! -x $PREFIX/bin/sigit ]; then
+    update_system
+    install_dependencies "${bin[@]}"
+    log "Installing dependencies for sigit ... "
+    if ! python3 -m pip install email_validator; then
+      error "It could not be installed the package!."
+      exit 1
+    fi
+    git clone https://github.com/termuxhackers-id/SIGIT $PREFIX/opt/SIGIT
+    chmod 711 $PREFIX/opt/SIGIT/install.sh
+    bash $PREFIX/opt/SIGIT/install.sh
+    log "$D Done!"
+    log "Please Execute:"
+    echo
+    log "sigit <argv>"
+  else
+    log "$D Already Installed!"
+  fi

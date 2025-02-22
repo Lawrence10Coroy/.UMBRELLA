@@ -1,28 +1,35 @@
-#!/usr/bin/bash
-#
-if [ ! -x $PREFIX/bin/sherlock ]; then
-    echo -en "\e[1;4;38;5;253mInstalling dependencies for sherlock...\e[0m\n"
-    yes|pkg update && pkg upgrade
-    yes|pkg install python
-    python3 -m pip install --upgrade pip &>/dev/null;
-    yes|pkg install python-numpy
-    yes|pkg install python-numpy-static
+#!/usr/bin/env bash
+#Useful functions for customization of the Umbrella
+source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33m File 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
+
+main() {
+  local bin=("git" "python" "python-numpy" "python-numpy-static")
+
+  if [ ! -x $PREFIX/bin/sherlock ]; then
+    update_system
+    install_dependencies "${bin[@]}"
+    log "Installing dependencies for sherlock ... "
     MATHLIB="m" pip install pandas
     git clone https://github.com/sherlock-project/sherlock $PREFIX/opt/sherlock
-    cd $PREFIX/opt/sherlock
-    python3 -m pip install -r requirements.txt &>/dev/null;
+    if ! python3 -m pip install -r $PREFIX/opt/sherlock/requirements.txt &>/dev/null; then
+      error "It could not be installed the package!."
+      exit 1
+    fi
     touch $PREFIX/bin/sherlock
     cat <<- Confg > $PREFIX/bin/sherlock
 #!/bin/bash
 sherlock="/data/data/com.termux/files/usr/opt/sherlock/sherlock"
 cd \${sherlock}
-exec python3 "\${sherlock}/sherlock.py" "\$@"
+exec python3 "\${lock}/sherlock.py" "\$@"
 Confg
     chmod 711 $PREFIX/bin/sherlock
-    printf "\e[1;38;5;253mDone!
-    Please Execute:
-
-    sherlock <argv>\e[0m\n"
-else
-    echo -en "\e[1;4;38;5;253mAlready Installed!\e[0m\n";
+    log "$D Done!"
+    log "Please Execute:"
+    echo
+    log "sherlock <argv>"
+  else
+    log "$D Already Installed!"
 fi
+}
+
+main
