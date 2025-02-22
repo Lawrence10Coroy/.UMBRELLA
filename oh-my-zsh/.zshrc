@@ -51,7 +51,7 @@ export LANG=en_US.UTF-8
 # Aliases for common commands
 alias tldr='tldr --language es'
 alias ls='lsd --group-dirs=first'
-alias lsa='lsd -a --group-dirs=first'
+alias la='lsd -a --group-dirs=first'
 alias l='lsd -lh --group-dirs=first'
 alias ll='lsd -lha --group-dirs=first'
 alias bat="bat -f --theme 'base16-256'"
@@ -62,7 +62,6 @@ alias can="cat"
 alias vim="nvim"
 alias mysql="mariadb"
 alias cl="clear"
-alias fzf-lovely="fzf-lovely h"
 
 # Custom Functions
 function man() {
@@ -117,10 +116,10 @@ confg
 
   local preview_cmd='[[ $(file --mime {}) =~ binary ]] && echo {} Is a binary file || (bat -f --theme base16-256 --style=plain {}) 2>/dev/null || head -500'
 
-  if [[ "$1" = "h" ]]; then
-    fzf -m --reverse --preview-window down:20 --preview "$preview_cmd" --bind "enter:execute(vim {})"
-  else
+  if [[ "$1" == "-v" ]]; then
     fzf -m --preview "$preview_cmd" --bind "enter:execute(vim {})"
+  else
+    fzf -m --reverse --preview-window down:20 --preview "$preview_cmd" --bind "enter:execute(vim {})"
   fi
 }
 
@@ -131,6 +130,11 @@ function archivos() {
 function cat() {
   command -v bat >/dev/null || apt-get install bat -y 2>/dev/null;
   $PREFIX/bin/bat --style=plain "$@"
+}
+
+function reload() {
+  termux-reload-settings 2>/dev/null
+  exec zsh
 }
 
 function df() {
