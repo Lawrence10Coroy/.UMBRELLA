@@ -5,40 +5,8 @@
 
 source ${HOME}/.UMBRELLA/UMBRELLA/functions || { echo -en "\033[31mError:\033[33mFile 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
 
+
 [ ! -f "$LOG_FILE" ] && touch "$LOG_FILE"
-
-log() {
-  local argv="$1"
-  echo -e "$argv${default}"
-}
-
-error() {
-  local argv="$1"
-  log "$E $argv"
-  log "Verify the error in $LOG_FILE"
-}
-
-update_system() {
-  log "$A Update system ... "
-  if ! apt update && pkg upgrade -y &>>"$LOG_FILE"; then
-    error "The dependencies could not be updated!."
-  fi
-}
-
-install_dependencies() {
-  local dependendencies=("$@")
-  for dep in "${dependendencies[@]}"; do
-    if command -v "$dep" &>/dev/null; then
-      log "$D $dep Already is installed!."
-    else
-      log "$A Installing dependencies $dep...  "
-      if ! pkg install -y "$dep"; then
-        error "Could not be installed '$dep'."
-      fi
-      log "$D $dep Installed Successfully!."
-    fi
-  done
-}
 
 backup_files() {
   local files=("$@")
