@@ -49,9 +49,9 @@ install_tool() {
 
 remove_tool() {
   local argv="$1"
-  local removing="\e[1;4;38;5;253mRemoving '$argv'...\e[0m\n"
-  local done="\e[1;38;5;253mDone!\nRemoval Complete\e[0m\n"
-  local already="\e[1;4;38;5;253mPackage '$argv' is not installed!, so not removed.\e[0m\n"
+  local removing="Removing '$argv'... "
+  local done="Done!\nRemoval Complete"
+  local already="Package '$argv' is not installed!, so not removed."
   if [ -z "$argv" ]; then
     echo -e "${red}Error:${yellow} Input an tools!."
     usage
@@ -112,8 +112,8 @@ remove_tool() {
       python3 -m pip uninstall ghost
       ;;
     gobuster)
-      yes|pgk remove golang
-      rm -rf ${opt}/gobuster
+      yes|pkg remove golang
+      rm -r ${opt}/gobuster
       rm ${bin}/gobuster
       ;;
     gophish)
@@ -329,8 +329,8 @@ remove_tool() {
       return
       ;;
   esac
-  log_data "Removing $argv"
-  echo -en "$done"
+  log "Removing $argv"
+  log "${D}$done"
 }
 
 if [ -z "$1" ];then
