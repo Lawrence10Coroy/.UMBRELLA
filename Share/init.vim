@@ -1,127 +1,82 @@
-"     CONFIGURATION UMBRELLA
-"     AUTOR; LAWRENCE
+"  ==================== GENERAL SETTINGS ====================
+" Autor LAWRENCE
 
+" Basic settings
+filetype plugin indent on
+syntax on
+
+" Settings interface
 colorscheme sorbet
-set autoindent
-set tabstop=2
-set mouse=in
-set expandtab
-set shiftwidth=2
-set relativenumber number
-set bg=dark
-set list lcs=leadmultispace:>☣,multispace:---+---+--,trail:-
-"set list listchars=tab:>☣,trail:-,multispace:---+---+--,space:…,leadmultispace:---+
-set showmatch
+set background=dark
+set number relativenumber number
 set laststatus=2
 set signcolumn=yes
-set syntax=tmux
-syntax on
+set showmatch
 set termguicolors
 if &termguicolors
-      let s:termguicolors = 1
+  let s:termguicolors = 1
 else
-      let s:termguicolors - 0
+  let s:termguicolors = 0
 endif
+" Settings indent & tabs
+set autoindent
+set tabstop=2
+set shiftwidth=2
+set expandtab
+set list
+set listchars=leadmultispace:>☣,multispace:---+---+--,nbsp:+,trail:-
+" Setting mouse
+set mouse=a
+" Setting search
+set ignorecase
+set smartcase
+" Settings buffera & windows
+set hidden
+set splitright
+set splitbelow
 
-:au! CursorHold
-:au! CursorHold!
-:au! CursorMoved
-:au! CursorMovedI
-
-" ############### PLUGINSTALL #################
+":au! CursorHold
+":au! CursorHoldI
+":au! CursorMoved
+":au! CursorMovedI
+" ==================== PLUGINS ====================
 call plug#begin('~/.config/nvim/plugged')
 
+Plug 'morhetz/gruvbox'
 Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'  " Temas para airline
+Plug 'vim-airline/vim-airline-themes'
+Plug 'itchyny/lightline.vim'
+Plug 'maximbaz/lightline-ale'
+Plug 'yggdroot/indentline'
+"Plug 'valloric/youcompleteme'
+Plug 'glepnir/oceanic-material'
+
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'jiangmiao/auto-pairs'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } "
+Plug 'junegunn/fzf.vim'
+Plug 'scrooloose/nerdtree'
+Plug 'christoomey/vim-tmux-navigator'
+
 Plug 'w0rp/ale'
 
-Plug 'sheerun/vim-polyglot'          " SINTAXS RESALT FOR LENGUAGES PYTHON
-Plug 'maximbaz/lightline-ale'        " STATUS BAR
-Plug 'itchyny/lightline.vim'         " COMPLETHEME OF STATUS BAR
-Plug 'jiangmiao/auto-pairs'          " COMPLETE AN [] () '' {}
-Plug 'benmills/vimux'                " SEND INSTRUCTIONS AN OTHERS PANELS
-"autocomplete
-Plug 'sirver/ultisnips'              " CURSOR INSIDE OF THE SIGNES ()
-" ####### TEST ########
-Plug 'tyewang/vimux-jest-test'
-Plug 'janko-m/vim-test'
-Plug 'editorconfig/editorconfig-vim' " DO TWO TAB SPACE
-Plug 'junegunn/fzf.vim'
-Plug 'terryma/vim-multiple-cursors'  " MULTIPLE CURSOR
-Plug 'yggdroot/indentline'           " INDENT LINE OF CODIGO
-Plug 'glepnir/oceanic-material'
-" ######## THEME #######
-Plug 'morhetz/gruvbox'               " THEME
-Plug 'shinchu/lightline-gruvbox.vim' " COMPLETHEME
-" ======== IDE ========
 Plug 'easymotion/vim-easymotion'
-Plug 'scrooloose/nerdtree'           " LEADER SPACE nt = ONE WINDOW
-Plug 'christoomey/vim-tmux-navigator'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'kaicataldo/material.vim'
-Plug 'rakr/vim-one'
-Plug 'vim-python/python-syntax'
-Plug 'valloric/youcompleteme'
-
+Plug 'terryma/vim-multiple-cursors'
 call plug#end()
 
-"
-let g:indentLine_fileTypeExclude = ['text', 'help', 'txt']
-" Print error message
-let g:ale_echo_msg_error_str = 'E'
-let g:ale_echo_msg_warning_str = 'W'
-let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-"
-let NERDTreeQuitOnOpen=1
-let mapleader=" "
-" CONFIGURATION For Java
-inoremap \\ *
-inoremap <C-l> public static void main(String[] args)
+" ==================== PLUGIN CONFIGURATION ====================
+" Coc.nvim (autocompleteme)
+let g:coc_global_extensions = [ 'coc-snippets', 'coc-json', 'coc-java', 'coc-sh', 'coc-python', 'coc-clangd', 'coc-tsserver' ]
 
-:hi Comment  guifg=#595959 "gui=strikethrough
+if has('nvim')
+  inoremap <silent><expr> <c-space> coc#refresh()
+else
+  inoremap <silent><expr> <c-@> coc#refresh()
+endif
 
-"================ PopUp ======================
-vmenu PopUp.Cut                     "x
-vmenu PopUp.Copy                    "c
-xmenu PopUp.Paste                   "p
-xmenu PopUp.Delete                  "d
-
-" ================ Cursor Position ======================
-nnoremap <Leader><TAB> :<C-U>TmuxNavigatePrevious<CR>
-nnoremap <Leader>c :<C-U>call multiple_cursors#new('v', 1)<CR>
-
-" ================ SIZE VIM ======================
-noremap <Leader><RIGHT> 10<C-w>>
-noremap <Leader><LEFT> 10<C-w><
-" =============== SAVE / EXIT ====================
-map <Leader>w :w<CR>
-map <Leader>q :q<CR>
-map <C-d> :q!<CR>
-map <Leader>u :vnew<CR>
-map <Leader>z :u<CR>
-"9
-nmap <Leader>m :call fzf#vim#maps('n', 0)<CR>
-nmap <Leader>s :call EasyMotion#T(-1,0,0)<CR>
-map <Leader>b :Buffers<CR>
-" ================ RUN FILE =====================
-nmap <Leader>x :!node %<cr>
-" ============= OPEN NERDTREE ===================
-nmap <Leader>n :NERDTreeFind<CR>
-nmap <Leader>n :NERDTreeToggle<CR>
-" ============= OPEN TERMINAL ===================
-nnoremap <Leader>t :below terminal<CR>
-:tnoremap <Esc> <C-\><C-n>
-
-" ================= INDENTATE ===================
-
-let g:indentLine_color_gui = '#556b2f'
-"let g:indentLine_color_term = 99
-let g:indentLine_char_list = ['⁞','⁑','╏','┃','┋']
-
-" ============ SETTINGS PLUG VIM-COC ============
-inoremap <silent><expr> <enter> coc#pum#visible() ? coc#pum#confirm()
-                               \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+inoremap <silent><expr> <right> coc#pum#visible() ? coc#pum#info() .coc#pum#scroll(0) : "\<right>"
+nnoremap <silent> <C-j> :call coc#float#scroll(1)<CR>
+nnoremap <silent> <C-k> :call coc#float#scroll(0)<CR>
 
 inoremap <silent><expr> <TAB>
       \ coc#pum#visible() ? coc#pum#next(1) :
@@ -129,17 +84,40 @@ inoremap <silent><expr> <TAB>
       \ "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
       \ CheckBackspace() ? "\<TAB>" :
       \ coc#refresh()
+
 inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
 
+inoremap <silent><expr> <enter> coc#pum#visible() ? coc#pum#confirm() :
+      \ "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
 function! CheckBackspace() abort
-      let col = col('.') - 1
-      return !col || getline('.')[col - 1]  =~# '\s'
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1] =~# '\s'
 endfunction
 
-if has('nvim')
-      inoremap <silent><expr> <c-space> coc#refresh()
-else
-      inoremap <silent><expr> <c-@> coc#refresh()
-endif
+function! LightlineFilename()
+  return expand('%:t') !=# '' ? @% : '[No Name]'
+endfunction
 
-let g:coc_global_extensions = ['coc-json', 'coc-java', 'coc-sh']
+:hi Comment  guifg=#595959
+let NERDTreeQuitOnOpen=1
+let mapleader=" "
+let g:indentLine_color_gui = '#556b2f'
+let g:indentLine_char_list = ['⁞','⁑','╏','┃','┋']
+let g:ale_echo_msg_error_str = 'E'
+let g:ale_echo_msg_warning_str = 'W'
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+
+nmap <Leader>n :NERDTreeToggle<CR>
+nmap <Leader>m :call fzf#vim#maps('n', 0)<CR>
+nmap <Leader>s :call EasyMotion#T(-1,0,0)<CR>
+map <Leader>w :w<CR>
+map <Leader>q :q<CR>
+map <C-d> :q!<CR>
+map <Leader>u :vnew<CR>
+map <Leader>z :u<CR>
+nnoremap <Leader>t :below terminal<CR>
+:tnoremap <Esc> <C-\><C-n>
+inoremap \\ *
+inoremap <C-l> public static void main(String[] args)
+echo "U M B R E L L A:  Configuration Sucessfully!"
