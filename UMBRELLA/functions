@@ -11,7 +11,6 @@ export -f log
 error() {
   local argv="$1"
   log "$E $argv"
-  log "Verify the error in $LOG_FILE"
 }
 export -f error
 
@@ -133,12 +132,13 @@ helpper() {
 export -f helpper
 
 pass () {
-  local login_file="${libexec}/UMBRELLA.login"
+  local flogin="${libexec}/UMBRELLA.login"
   local argv="$1"
   case "$argv" in
     Set)
-      login=$(grep "pass" ${libexec}/UMBRELLA.login|tail -n 1)
-      check_file "$login_file"
+      check_file "$flogin"
+      login=$(grep "pass" "$flogin" | tail -n 1)
+
       select opt in Password Disable Exit; do
         case "$opt" in
           Exit) exit 0 ;;
@@ -146,11 +146,14 @@ pass () {
             opt="Get"
             sed -i "s|$login|pass $opt|" $libexec/UMBRELLA.login
             log_data "Enable password"
+            log "$D Enable password sucessfully!"
             break ;;
           Disable)
             opt=""
             sed -i "s|$login|pass $opt|" $libexec/UMBRELLA.login
-            log_data "Disable password" ;;
+            log_data "Disable password"
+            log "$D Disable password sucessfully!"
+            break ;;
           *)
             echo -e "${red}Error:${yellow} No valid option!. Try again.${default}"
             ;;
@@ -159,29 +162,32 @@ pass () {
       ;;
     New)
       while read -sp "New password: " pass && printf "\n" && [[ -z $pass ]]; do
+        error "Input cannot be empty. Please try again."
         continue
       done
       while read -sp "Retype new password: " pass2 && printf "\n" && [[ -z $pass2 ]]
       do
+        error "Input cannot be empty. Please try again."
         continue
       done
       if [[ $pass = $pass2 ]]; then
-        echo $pass|openssl enc -aes-256-cbc -md sha512 -a -pbkdf2 -iter 100000 \
-          -salt -pass pass:Secret@123# > $HOME/.UMBRELLA/UMBRELLA/.passwd;
+        echo "PASSWORD $pass"|openssl enc -aes-256-cbc -md sha512 -a -pbkdf2 -iter 100000 -salt -pass pass:dynamic_key > $HOME/.UMBRELLA/UMBRELLA/.passwd;
 
-        echo -en "\e[34mPassword to start operations in the system, saved!.\e[0m\n"
+        log "Password saved successfully!.\e[0m\n"
       else
-        echo -en "\e[35mERROR:\e[0m Password do noy match.\n"
+        error "Password do noy match."
         pass New
       fi
       log_data "Add new password"
       ;;
     Get)
+      check_file "$flogin"
       while read -sp "Password: " pass && [[ -z $pass ]]; do
+        error "Input password!.\n"
         continue
       done
-      until [[ $pass = $(cat $HOME/.UMBRELLA/UMBRELLA/.passwd|openssl enc -aes-256-cbc -md sha512 -a -d -pbkdf2 -iter 100000  salt -pass pass:Secret@123#) ]] && printf "\n"; do
-        echo -en "\e[35mERROR:\e[0m Retype the password\n"
+      until [[ $pass = $(cat $HOME/.UMBRELLA/UMBRELLA/.passwd|openssl enc -aes-256-cbc -md sha512 -a -d -pbkdf2 -iter 100000 -salt -pass pass:dynamic_key | awk 'NF{print $NF}') ]] && printf "\n"; do
+        error "Retype the password"
         log_data "Error to get password"
         pass Get
       done
