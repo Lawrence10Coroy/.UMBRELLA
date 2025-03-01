@@ -4,20 +4,16 @@ source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[
 
 main() {
 
-  local bin=("tar" "wget" "gzip")
+  local bin=("tar" "wget" "gzip" "golang")
 
   if [ ! -x $PREFIX/bin/gobuster ]; then
     install_dependencies "${bin[@]}"
     log "Installing dependencies for gobuster ... "
 
     update_system
-    if wget https://github.com/OJ/gobuster/releases/download/v3.6.0/gobuster_Linux_arm64.tar.gz; then
-      gzip --decompress -c gobuster_Linux_arm64.tar.gz > gobuster_Linux_arm64
-    fi
-      if command tar -xf gobuster_Linux_arm64; then
-      mv gobuster "${PREFIX}/bin"
-      rm gobuster_Linux_arm64
-      rm gobuster_Linux_arm64.tar.gz
+    if go install github.com/OJ/gobuster/v3@latest; then
+      echo 'export PATH=$PATH:~/go/bin' >> ~/.zshrc
+      source ~/.zshrc
     else
       error "It could not be installed the package!."
       exit 1
