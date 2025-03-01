@@ -93,13 +93,13 @@ line_number() {
   case "$argv" in
     *[0-9]*)
       valid_number "$argv"
-      awk "NR == $argv" "$file" | bat --theme 'base16-256' --plain
+      awk "NR == $argv" "$file" | bat --style=plain -l ruby
       ;;
     --end)
-      awk 'END {print}' "$file" | bat --theme 'base16-256' --plain
+      awk 'END {print}' "$file" | bat --style=plain -l ruby
       ;;
     --start)
-      awk "NR == 1" "$file" | bat --theme 'base16-256' --plain
+      awk "NR == 1" "$file" | bat --style=plain -l ruby
       ;;
   esac
 }
@@ -110,7 +110,7 @@ range_line() {
   valid_argv "$argv"
   valid_number "${argv%-*}"
   valid_number "${argv#*-}"
-  awk "NR >= ${argv%-*} && NR <= ${argv#*-}" "$file" | bat --theme 'base16-256' --plain
+  awk "NR >= ${argv%-*} && NR <= ${argv#*-}" "$file" | bat --style=plain -l ruby
 }
 
 several_line() {
@@ -118,7 +118,7 @@ several_line() {
   valid_argv "$argv"
   valid_number "${argv%-*}"
   valid_number "${argv#*-}"
-  awk "NR == ${argv%-*} || NR == ${argv#*-}" "$file" | bat --theme 'base16-256' --plain
+  awk "NR == ${argv%-*} || NR == ${argv#*-}" "$file" | bat --style=plain -l ruby
 }
 
 main() {
@@ -147,7 +147,7 @@ main() {
 }
 
 if [[ -z "$1" ]]; then
-  bat --theme 'base16-256' --plain "$file"
+  bat --style=plain -l ruby "$file"
   exit 0
 fi
 
