@@ -132,13 +132,12 @@ helpper() {
 export -f helpper
 
 pass () {
-  local flogin="${libexec}/UMBRELLA.login"
+  files=("${libexec}/UMBRELLA.login" "${UMBRELLA}/passwd")
   local argv="$1"
   case "$argv" in
     Set)
-      check_file "$flogin"
-      login=$(grep "pass" "$flogin" | tail -n 1)
-
+      check_file "${files[@]}"
+      login=$(grep "pass" ${libexec}/UMBRELLA.login | tail -n 1)
       select opt in Password Disable Exit; do
         case "$opt" in
           Exit) exit 0 ;;
@@ -171,7 +170,9 @@ pass () {
         continue
       done
       if [[ $pass = $pass2 ]]; then
-        echo "PASSWORD $pass"|openssl enc -aes-256-cbc -md sha512 -a -pbkdf2 -iter 100000 -salt -pass pass:dynamic_key > $HOME/.UMBRELLA/UMBRELLA/.passwd;
+        local fpasswd=$(grep "PASSWORD" ${UMBRELLA}/passwd|tail -n 1)
+        local encrypted=$(echo $pass|openssl enc -aes-256-cbc -md sha512 -a -pbkdf2 -iter 100000 -salt -pass pass:dynamic_key)
+        sed -i "s|$fpasswd|PASSWORD : $encrypted|" ${UMBRELLA}/passwd
 
         log "Password saved successfully!.\e[0m\n"
       else
@@ -181,19 +182,51 @@ pass () {
       log_data "Add new password"
       ;;
     Get)
-      check_file "$flogin"
-      while read -sp "Password: " pass && [[ -z $pass ]]; do
+      check_file "${files[@]}"
+      local passwd=$(grep "PASSWORD" ${UMBRELLA}/passwd | tail -n 1)
+      if [[ -z "$passwd" ]]; then
+        error "No password found in the file."
+        return 1
+      fi
+
+      local encrypted_pass=$(echo "$passwd" | awk '{print $NF}')
+      if [[ -z "$encrypted_pass" ]]; then
+        error "Encrypted password is empty."
+        return 1
+      fi
+      decrypted_pass=$(echo "$encrypted_pass" | openssl enc -aes-256-cbc -md sha512 -a -d -pbkdf2 -iter 100000 -salt -pass pass:dynamic_key 2>/dev/null)
+      if [[ $? -ne 0 ]]; then
+        error "Failed to decrypt the password. Check the encryption format or key."
+        return 1
+      fi
+
+      max_attempts=3
+      attempt=0
+
+      while read -sp "Password: " pass && [[ -z "$pass" ]]; do
         error "Input password!.\n"
         continue
       done
-      until [[ $pass = $(cat $HOME/.UMBRELLA/UMBRELLA/.passwd|openssl enc -aes-256-cbc -md sha512 -a -d -pbkdf2 -iter 100000 -salt -pass pass:dynamic_key | awk 'NF{print $NF}') ]] && printf "\n"; do
+      until [[ "$pass" = "$decrypted_pass" ]] && printf "\n"; do
+        attempt=$((attempt + 1))
+        if [[ $attempt -ge $max_attempts ]]; then
+          error "Maximum attempts reached. Exiting."
+          log_data "Failed to input correct password after $max_attempts attempts."
+          sleep 2
+          pkill com.termux
+        fi
         error "Retype the password"
-        log_data "Error to get password"
-        pass Get
+        log_data "Error to get password (Attempt: $attempt)"
+        pass=""
+        while read -sp "Password: " pass && [[ -z "$pass" ]]; do
+          error "Input password!.\n"
+          continue
+        done
       done
-      log_data "Input password sucessfully"
+      log "$D Password sucessfully!\nWELCOME TO  U M B R E L L A  C O R P O R A T I O N"
+      log_data "Input password successfully"
       ;;
   esac
 }
-export -f pass
 
+export -f pass
