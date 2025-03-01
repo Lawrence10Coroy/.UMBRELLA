@@ -57,7 +57,7 @@ alias ll='lsd -lha --group-dirs=first'
 alias bat="bat -f --theme 'base16-256'"
 alias ipa="ip -brief a"
 alias getip="wget http://checkip.dyndns.org/ -O - -o /dev/null | cut -d: -f 2 | cut -d\< -f 1 | sed 's/ //g'"
-alias hg="history | grep -i"
+alias hg="history $@| bat --style=plain -l ruby"
 alias can="cat"
 alias vim="nvim"
 alias mysql="mariadb"
@@ -71,7 +71,7 @@ function man() {
   fi
   env \
   LESS_TERMCAP_mb=$'\e[01;31m' \
-  LESS_TERMCAP_md=$'\e[01;38;5;220m' \
+  LESS_TERMCAP_md=$'\e[01;38;5;166m' \
   LESS_TERMCAP_me=$'\e[0m' \
   LESS_TERMCAP_se=$'\e[0m' \
   LESS_TERMCAP_so=$'\e[01;44;33m' \
@@ -107,14 +107,11 @@ let mapleader=" "
 nnoremap <Leader>w :w<CR>
 nnoremap <Leader>q :q<CR>
 nnoremap <C-d> :q!<CR>
-
-let g:indentLine_color_term = 126
-let g:indentLine_char_list = ['⁞','⁑','╏','┃','┋']
 confg
     clear
   fi
 
-  local preview_cmd='[[ $(file --mime {}) =~ binary ]] && echo {} Is a binary file || (bat -f --theme base16-256 --style=plain {}) 2>/dev/null || head -500'
+  local preview_cmd='[[ $(file --mime {}) =~ binary ]] && echo {} Is a binary file || (bat -f --theme base16-256 --style=numbers {}) 2>/dev/null || head -500'
 
   if [[ "$1" == "-v" ]]; then
     fzf -m --preview "$preview_cmd" --bind "enter:execute(vim {})"
@@ -170,10 +167,24 @@ function color() {
   echo -e "\033[0m"
 }
 
-function whoami() {
+function whoami () {
+  local passwd_file="$HOME/.UMBRELLA/UMBRELLA/passwd"
 
-  if [[ -f ~/.UMBRELLA/UMBRELLA/.user ]]; then
-    cat ~/.UMBRELLA/UMBRELLA/.user|openssl enc -aes-256-cbc -md sha512 -a -d -pbkdf2 -iter 100000 -salt -pass pass:dynamic_key|awk 'NF{print $NF}'
+  if [[ -f "$passwd_file" && -r "$passwd_file" ]]; then
+    local user=$(grep "USER" "$passwd_file" | tail -n 1)
+    if [[ -n "$user" ]]; then
+      local encrypted_user=$(echo "$user" | awk 'NF{print $NF}')
+      if [[ -n "$encrypted_user" ]]; then
+        echo "$encrypted_user" | openssl enc -aes-256-cbc -md sha512 -a -d -pbkdf2 -iter 100000 -salt -pass pass:dynamic_key 2>/dev/null
+        if [[ $? -ne 0 ]]; then
+          command whoami
+        fi
+      else
+        command whoami
+      fi
+    else
+      command whoami
+    fi
   else
     command whoami
   fi
