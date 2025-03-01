@@ -2,8 +2,9 @@
 
 source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33mFile 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
 
-USER_FILE="${HOME}/.UMBRELLA/UMBRELLA/.user"
+USER_FILE="${HOME}/.UMBRELLA/UMBRELLA/passwd"
 ENCRYPT_KEY="dynamic_key"
+fuser=$(grep "USER" ${UMBRELLA}/passwd|tail -n 1)
 
 show_help() {
   echo -e "${yellow}For more help, type ${green}UMBRELLA${yellow} [${red}-h${yellow} | ${red}--help${yellow}] for help UMBRELLA CORPORATION.${default}"
@@ -11,7 +12,9 @@ show_help() {
 
 encrypt_username() {
   local user="$1"
-  echo "USER $user" | openssl enc -aes-256-cbc -md sha512 -a -pbkdf2 -iter 100000 -salt -pass pass:"${ENCRYPT_KEY}" > "${USER_FILE}"
+  local fuser=$(grep "USER" ${UMBRELLA}/passwd|tail -n 1)
+  local encrypted=$(echo $user|openssl enc -aes-256-cbc -md sha512 -a -pbkdf2 -iter 100000 -salt -pass pass:dynamic_key)
+  sed -i "s|$fuser|USER : $encrypted|" ${UMBRELLA}/passwd
   echo -e "${blue}Username saved successfully.${default}"
 }
 
@@ -33,18 +36,19 @@ get_username() {
 
 remove_username() {
   log_data "Removing Username"
-  if [[ -f "${USER_FILE}" ]]; then
-    rm "${USER_FILE}" 2>/dev/null
+
+  if [[ -n "$(grep "USER" ${UMBRELLA}/passwd|tail -n 1|awk 'NF{print NF}')" ]]; then
+    sed -i "s|$fuser|USER |" ${UMBRELLA}/passwd
     echo -e "${blue}Username removed successfully.${default}"
   else
-    echo -e "${yellow}No username found to remove.${default}"
+    echo -e "${yellow}You don't have a defined username.${default}"
   fi
 }
 
 handle_options() {
   case "$1" in
     -n|--new)
-      if [[ -f "${USER_FILE}" && -s "${USER_FILE}" ]]; then
+      if [[ -z "$(grep "USER" ${UMBRELLA}/passwd|tail -n 1|awk 'NF{print NF}')" ]]; then
         read -p "[Y/N] Do you want to change your username? " opt
         if [[ "$opt" =~ ^[Yy]$ ]]; then
           log_data "Change username"
