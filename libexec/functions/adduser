@@ -15,13 +15,13 @@ encrypt_username() {
   local fuser=$(grep "USER" ${UMBRELLA}/passwd|tail -n 1)
   local encrypted=$(echo $user|openssl enc -aes-256-cbc -md sha512 -a -pbkdf2 -iter 100000 -salt -pass pass:dynamic_key)
   sed -i "s|$fuser|USER : $encrypted|" ${UMBRELLA}/passwd
-  echo -e "${blue}Username saved successfully.${default}"
+  log -d "Username saved successfully."
 }
 
 validate_input() {
   local input="$1"
   if [[ -z "$input" ]]; then
-    echo -e "${red}Input cannot be empty. Please try again.${default}"
+    error "Input cannot be empty. Please try again."
     return 1
   fi
   return 0
@@ -35,13 +35,11 @@ get_username() {
 }
 
 remove_username() {
-  log_data "Removing Username"
-
   if [[ -n "$(grep "USER" ${UMBRELLA}/passwd|tail -n 1|awk 'NF{print NF}')" ]]; then
     sed -i "s|$fuser|USER |" ${UMBRELLA}/passwd
-    echo -e "${blue}Username removed successfully.${default}"
+    log -d "Username removed successfully."
   else
-    echo -e "${yellow}You don't have a defined username.${default}"
+    log "${red}[✖] ${yellow}You don't have a defined username."
   fi
 }
 
@@ -51,14 +49,12 @@ handle_options() {
       if [[ -z "$(grep "USER" ${UMBRELLA}/passwd|tail -n 1|awk 'NF{print NF}')" ]]; then
         read -p "[Y/N] Do you want to change your username? " opt
         if [[ "$opt" =~ ^[Yy]$ ]]; then
-          log_data "Change username"
           user=$(get_username)
           encrypt_username "$user"
         else
-          echo -e "${yellow}Username remains unchanged.${default}"
+          log "$red[✖] ${yellow}Username remains unchanged.${default}"
         fi
       else
-        log_data "Add username"
         user=$(get_username)
         encrypt_username "$user"
       fi
@@ -68,7 +64,7 @@ handle_options() {
       if [[ "$opt" =~ ^[Yy]$ ]]; then
         remove_username
       else
-        echo -e "${yellow}Username deletion canceled.${default}"
+        log "$red[✖] ${yellow}Username deletion canceled!.${default}"
       fi
       ;;
     -h|--help)

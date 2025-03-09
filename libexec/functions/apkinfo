@@ -7,7 +7,7 @@ check_dependencies aapt
 main_activity() {
   local argv="$1"
   if [[ ! -f "$argv" ]];then
-    echo -e "\033[31mError:\033[33m $1 is not a valid file.\033[0m"
+    error "$1 is not a valid file."
     exit 1
   fi
   theme dark
@@ -15,7 +15,7 @@ main_activity() {
   activity=$(aapt dump badging "$1" | awk '/activity/{gsub("name=|'"'"'","");  print $2}')
 
   if ! aapt dump badging "$1" &> /dev/null; then
-    echo -en "\033[31mError:\033[33m Failed to extract information from $1.\033[0m\n"
+    error "Failed to extract information from $1."
     exit 1
   fi
   echo

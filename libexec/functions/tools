@@ -18,33 +18,30 @@ list_tools() {
   column $list
   printf "\n჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻჻\n${default}"
   rm $list
-  log_data "List tools."
 }
 
 about_tools() {
   local argv="$1"
   local tool_readme="${UMBRELLA}/Tools/.Readme/$argv"
   if [ -z "$argv" ]; then
-    echo -e "${red}Error:${yellow} Input an tools!."
+    error "Input an tools!."
     usage
     exit 1
   fi
   check_file "$tool_readme"
-  bat --style=plain "$tool_readme"
-  log_data "Consultation about the '$argv' tool"
+  bat --style=plain "$tool_readme" -l java
 }
 
 install_tool() {
   local argv="$1"
   local tool_path="${UMBRELLA}/Tools/$argv"
   if [ -z "$argv" ]; then
-    echo -e "${red}Error:${yellow} Input an tools!."
+    error "Input an tools!."
     usage
     exit 1
   fi
   check_file "$tool_path"
   bash "$tool_path"
-  log_data "Installing dependencies to '$argv'"
 }
 
 remove_tool() {
@@ -53,15 +50,15 @@ remove_tool() {
   local done="Done!\nRemoval Complete"
   local already="Package '$argv' is not installed!, so not removed."
   if [ -z "$argv" ]; then
-    echo -e "${red}Error:${yellow} Input an tools!."
+    error "Input an tools!."
     usage
     exit 1
   fi
   if ! command -v "$argv" &>/dev/null; then
-    echo -en "$already"
+    log "$already"
     return
   fi
-  echo -en "$removing"
+  log -a "$removing"
   case "$argv" in
     apktool)
       yes|pkg uninstall apktool
@@ -325,12 +322,12 @@ remove_tool() {
       rm ${bin}/xsstrike
       ;;
     *)
-      echo -e "${red}Error:${yellow} Unknown tools!. Usage${green} tools ${red}-r <tools>${yellow} to uninstall.${default}"
+      error "Unknown tools!. Usage${green} tools ${red}-r <tools>${purple} to uninstall.${default}"
       return
       ;;
   esac
-  log "Removing $argv"
-  log "${D}$done"
+  log -a "Removing $argv"
+  log -d "$done"
 }
 
 if [ -z "$1" ];then
@@ -345,7 +342,7 @@ case $1 in
   -i|--install) install_tool "$2";;
   -r|--remove) remove_tool "$2";;
   *)
-    echo -e "${red}Error:${yellow} Option '$1' invalid!."
+    error "Option '$1' invalid!."
     usage ; info exit 1
     ;;
 esac

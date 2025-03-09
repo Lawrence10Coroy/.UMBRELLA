@@ -5,9 +5,6 @@
 
 source ${HOME}/.UMBRELLA/UMBRELLA/functions || { echo -en "\033[31mError:\033[33mFile 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
 
-
-[ ! -f "$LOG_FILE" ] && touch "$LOG_FILE"
-
 backup_files() {
   local files=("$@")
   for file in "${files[@]}"; do
@@ -39,35 +36,35 @@ For more help type ${green}UMBRELLA ${yellow}[ ${red}-h ${yellow}| ${red}--help 
 install_packages() {
   local dependencies=("wget" "gnupg" "curl" "git")
 
-  log "Installing packages dependencies... "
+  log "$A ${blue}Installing packages dependencies... "
   install_dependencies "$dependencies"
   mkdir -p $PREFIX/etc/apt/sources.list.d
   wget https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/ivam3-termux-packages.list -O $PREFIX/etc/apt/sources.list.d/ivam3-termux-packages.list;
-  curl -fsSL "https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/dists/stable/public_key.gpg"|gpg --dearmor|tee "$PREFIX/etc/apt/trusted.gpg.d/ivam3.gpg" >"$LOG_FILE";
-  update
-  log "$D Installed Successfully!."
+  curl -fsSL "https://raw.githubusercontent.com/ivam3/termux-packages/gh-pages/dists/stable/public_key.gpg"|gpg --dearmor|tee "$PREFIX/etc/apt/trusted.gpg.d/ivam3.gpg" 2>/dev/null;
+  update_system
+  log -d "Installed Packages Successfully!."
 }
 
 UMBRELLA() {
-  local dependencies=("tree" "tealdeer" "lsd" "zsh" "git" "curl" "gnupg" "nodejs" "openjdk-17" "unzip")
+  local dependencies=("tree" "tealdeer" "lsd" "zsh" "git" "curl" "gnupg" "nodejs" "openjdk-17" "unzip" "openssl" "termux-api" "aapt" "bat" "column" "man" "file" "duf" "cacademo" "scrub" "shred")
   local backup=("${HOME}/.termux" "${HOME}/.config/lsd")
   local files=("${share}/.termux" "${share}/Hack.zip" "${share}/.dircolors")
   check_files "${files[@]}"
 
-  log "$A Installing UMBRELLA CORPORATION..."
+  log "$A ${blue}Installing UMBRELLA CORPORATION..."
   install_dependencies "$dependencies"
   backup_files "${backup[@]}"
   tldr --update;
   git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
 
-  log "$A Setting UMBRELLA following instructions ... "
+  log "$A ${blue}Setting UMBRELLA following instructions ... "
   mv -r ${share}/.termux/ ~;
   if [ ! -d ${PREFIX}/share/fonts ]; then
     mkdir -p ${PREFIX}/share/fonts;
   fi
 
-  if ! unzip "${share}/Hack.zip" -d "${PREFIX}/share/fonts" &>>"$LOG_FILE"; then
-    error "In the extraction of the Hack.zip file"
+  if ! unzip "${share}/Hack.zip" -d "${PREFIX}/share/fonts" 2>&1; then
+    error -l "In the extraction of the Hack.zip file"
   else
     mv "${share}/.dircolors" ~
     rm "${PREFIX}/share/fonts/Hack.zip"
@@ -80,7 +77,7 @@ UMBRELLA() {
 
   chmod +x ~/.bashrc
   echo "echo -en \"\e[31mWARNING:\e[0m You are out of UMBRELLA CORPORATION | Some commands and tools could not be running.\n\"" >| ~/.bashrc;
-  log "$D UMBRELLA CORPORATION Installed Successfully!"
+  log -d "UMBRELLA CORPORATION Installed Successfully!"
 }
 
 Oh-My-Zsh() {
@@ -89,60 +86,60 @@ Oh-My-Zsh() {
   local files=("${Zsh}/.zshrc" "${Zsh}/zshrc" "${Zhs}/themes")
   check_files "${files[@]}"
 
-  log "$A Installing dependencies Oh-My-Zsh ... "
+  log "$A ${blue}Installing dependencies Oh-My-Zsh ... "
   install_dependencies "${dependencies[@]}"
   backup_files "${backup[@]}"
-  git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions >>"$LOG_FILE"
-  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting >>"$LOG_FILE"
+  git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions 2>&1;
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting 2>&1
 
-  log "$A Setting oh-my-zsh following UMBRELLA instructions ... "
-  if ! pip install Pygments >>"$LOG_FILE"; then
-    error "It could not be installed Pygments"
+  log "$A ${blue}Setting oh-my-zsh following UMBRELLA instructions ... "
+  if ! pip install Pygments 2>&1; then
+    error -l "It could not be installed Pygments"
   fi
   mv ${Zsh}/.zshrc ~;
   mv ${Zsh}/zshrc $PREFIX/etc;
   cp ${Zhs}/themes/* ~/.oh-my-zsh/themes && rm -rf "$Zsh"
-  log "$D Oh-My-Zsh Installed Successfully"
+  log -d "Oh-My-Zsh Installed Successfully"
 }
 
 Python() {
   local dependencies=("python3" "python-pip")
 
-  log "$A Installing dependencies Python ..."
+  log "$A ${blue}Installing dependencies Python ..."
   install_dependencies "${dependencies[@]}"
 
   if ! python -m pip --no-color --quiet --no-cache-dir install bpython >>"$LOG_FILE"; then
-    error "It could not be installed bpython"
+    error -l "It could not be installed bpython"
   else
-    log "$D bpython Installed Successfully!."
+    log -d "bpython Installed Successfully!."
   fi
 
   if ! python -m pip --no-color --quiet --no-cache-dir install jedin >>"$LOG_FILE"; then
-    error "It could not be installed jedin"
+    error -l "It could not be installed jedin"
   else
-    log "$D jedin Installed Successfully!."
+    log -d "jedin Installed Successfully!."
   fi
 }
 
 P10K() {
   local dependencies=("git" "p10k")
 
-  log "$A Installing dependencies Powerlevel10k ..."
+  log "$A ${blue}Installing dependencies Powerlevel10k ..."
   install_dependencies "${dependencies[@]}"
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
   echo 'source ~/powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
-  log "$D Powerlevel10k Installed Successfully!."
-  log "Run \e[0;32mp10k \e[0;31m;configure"
+  log -d "Powerlevel10k Installed Successfully!."
+  log "${blue}Run \e[0;32mp10k \e[0;31m;configure."
  }
 
 Oh-My-Tmux() {
   local backup=("${HOME}/.tmux" "${HOME}/.tmux.conf.old." "${HOME}/.tmux.conf")
   backup_files "${backup[@]}"
 
-  log "$D Installing dependencies Oh-My-Tmux ... "
+  log "$A ${blue}Installing dependencies Oh-My-Tmux ... "
   bash -c "$(curl -fsSL https://github.com/rlvilla/OhMyTmux/raw/main/ohmytmux.sh)"
-  log "$A Setting tmux following UMBRELLA instructions ... "
-  log "$D Oh-My-Tmux Installed Successfully!."
+  log "$A ${blue}Setting tmux following UMBRELLA instructions ... "
+  log -d "Oh-My-Tmux Installed Successfully!."
   }
 
 Vim() {
@@ -151,17 +148,16 @@ Vim() {
   local files="${share}/.vimrc"
   check_files "${files[@]}"
 
-  log "$D Installing dependencies vim ..."
+  log "$A ${blue}Installing dependencies vim ..."
   install_dependencies "${dependencies[@]}"
   backup_files "${backup[@]}"
-  curl -fLo ~/.vim/autoload/plug.vim --create-dirs \https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim >>"$LOG_FILE"
+  curl -fLo ~/.vim/autoload/plug.vim --create-dirs \https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim 2>&1;
 
-  log "$A Setting vim following UMBRELLA instructions ... "
+  log "$A ${blue}Setting vim following UMBRELLA instructions ... "
   mv "${share}/.vimrc" ~
-  vim +PlugInstall +q
-  vim +PlugUpdate +q
-  vim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-java +coc-nodejs +q
-  log "$D Vim Installed Successfully!."
+  vim +PlugInstall
+  vim +PlugUpdate
+  log -d "Vim Installed Successfully!."
 }
 
 Neovim() {
@@ -170,20 +166,19 @@ Neovim() {
   local files="${share}/init.vim"
   check_files "${files[@]}"
 
-  log "$A Installing dependencies Neovim ... "
+  log "$A ${blue}Installing dependencies Neovim ... "
   install_dependencies "${dependencies[@]}"
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
   bash "$HOME/.nvm/nvm.sh"
   backup_files "${backup[@]}"
-  curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim >>"$LOG_FILE"
+  curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim 2>&1
 
-  log "$A Setting Neovim following UMBRELLA instructions ... "
+  log "$A ${blue}Setting Neovim following UMBRELLA instructions ... "
   mkdir ~/.config/nvim;
   mv "${share}/init.vim" ~/.config/nvim;
-  nvim +PlugInstall +q
-  nvim +PlugUpdate +q
-  nvim +CocInstall +coc-json +coc-tsserver +coc-clangd +coc-sh +coc-python +coc-java +coc-nodejs +q
-  log "$D Neovim Installed Successfully!."
+  nvim +PlugInstall
+  nvim +PlugUpdate
+  log -d "Neovim Installed Successfully!."
 }
 
 x11_native() {
@@ -192,10 +187,10 @@ x11_native() {
 
   check_files "${files[@]}"
 
-  log "Installing dependencies X11_Native ... "
+  log "$A ${blue}Installing dependencies X11_Native ... "
   install_dependencies "${dependencies[@]}"
 
-  log "$A Setting desktop x11_native following UMBRELLA instructions ... "
+  log "$A ${blue}Setting desktop x11_native following UMBRELLA instructions ... "
   if [ ! -d ~/.icons ]; then
     mkdir ~/.icons
   fi
@@ -208,16 +203,16 @@ x11_native() {
   rm -r ~/.themes/Sweet-Dark-v40.tar.xz;
   mv "${share}/candy-icons.tar.xz ${HOME}/.icons" && tar -xf "${HOME}/.icons/candy-icons.tar.xz"
   rm -r ~/.icons/candy-icons.tar.xz
-  log "$D Ternux-11 Native Installed Successfully!."
+  log -d "Ternux-11 Native Installed Successfully!."
 }
 
 x11_distro() {
   local dependencies=("x11-repo" "termux-x11-nightly" "tur-repo" "pulseaudio" "proot-distro" "wget" "git")
 
-  log "$A Installing dependencies X11_distro ... "
+  log "$A ${blue}Installing dependencies X11_distro ... "
   install_dependencies "${dependencies[@]}"
-  log "$D Ternux-X11 distro Installed Successfully!"
-  log "To install a distribution, Run \e[0;34mproot-disto \e[0;31mlist\e[0;33m, to see the available distributions, choose one and execute the Comammos side:"
+  log -d "Ternux-X11 distro Installed Successfully!"
+  log "$A ${blue}To install a distribution, Run \e[0;34mproot-disto \e[0;31mlist\e[0;33m, to see the available distributions, choose one and execute the Comammos side:"
 
   printf "\e[0;34mproot-distro install <alias>\e[0;33m
   pd login debian
@@ -233,10 +228,10 @@ x11_distro() {
 Distro() {
   local dependencies=("proot-distro" "wget" "git")
 
-  log "$A Installing dependencies distro ... "
+  log "$A ${blue}Installing dependencies distro ... "
   install_dependencies "${dependencies[@]}"
-  log "$D Distro Installed Successfully"
-  log "To install a distribution, Run \e[0;34mproot-disto \e[0;31mlist\e[0;33m, to see the available distributions, choose one and execute the Comammos side:"
+  log -d "Distro Installed Successfully"
+  log "$A ${blue}To install a distribution, Run \e[0;34mproot-disto \e[0;31mlist\e[0;33m, to see the available distributions, choose one and execute the Comammos side:"
 
   printf "\e[0;34mproot-distro install <alias>\e[0;33m
   pd login debian
@@ -286,7 +281,7 @@ main() {
       usage
       ;;
     *)
-      log "$E Invalid option '$1'."
+      error "Invalid option '$1'."
       usage
       exit 1
       ;;

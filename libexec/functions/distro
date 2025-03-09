@@ -2,35 +2,26 @@
 
 source "${HOME}/.UMBRELLA/UMBRELLA/functions" || { echo -en "\033[31mError:\033[33mFile 'functions' is required but not exist!.\033[0m\n" ; exit 1; }
 
-E="${red}Error:${blue}"
-
 check_dependencies proot-distro
-
-log() {
-  local argv="$1"
-  echo -e "${yellow}[$(date '+%Y-%m-%d %H:%M:%S')]: ${blue}$argv${disable}"
-}
 
 distro() {
   local a=$(mktemp);
-  log_data "Check files rootfs"
-  log "Check files rootfs"
+  log -a "Check files rootfs"
   if [ -d ${PREFIX}/var/lib/proot-distro/installed-rootfs ]; then
     command ls ${PREFIX}/var/lib/proot-distro/installed-rootfs &> $a;
   else
-    log "$E Directory 'installed-rootfs' does not exist!. You need install rootfs, run proot-distro list."
+    error -l "Directory 'installed-rootfs' does not exist!. You need install rootfs, run proot-distro list."
     exit 1
   fi
 
   b="$(awk '{print $1}' < "$a")"
-  log_data "Check files home distribution"
-  log "Check files home distribution"
+  log -a "Check files home distribution"
   if [ -d ${PREFIX}/var/lib/proot-distro/installed-rootfs/${b}/home ]; then
     command ls ${PREFIX}/var/lib/proot-distro/installed-rootfs/${b}/home > $a;
     b="$(awk '{print $1}' < "$a")";
     exec proot-distro login debian --user ${b};
   else
-    log "$E You have to install a distribution. Run ${green}pkg2install ${red}distro."
+    error -l "You have to install a distribution. Run ${green}pkg2install ${red}distro."
     exit 1
     fi
   exec rm ${a} &>/dev/null;

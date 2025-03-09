@@ -21,14 +21,13 @@ list_themes() {
   for theme in "${!THEMES[@]}"; do
     echo -en "${blue}$theme${default} "
   done
-  log_data "List themes"
   echo
 }
 
 main() {
   local color=$1
   if [[ -z "${THEMES[$color]}" ]]; then
-    echo -e "${red}Error:${yellow} Color not valid."
+    error "Color not valid."
     list_themes
     exit 1
   fi
@@ -40,8 +39,7 @@ main() {
   sed -i "s|${change[Help]}|${THEMES[$color]}|" ${libexec}/functions/UMBRELLA
   sed -i "s|${change[Passw]}|${THEMES[$color]}|" ${libexec}/functions/password
 
-  echo -e "${green}Theme change to $color.${default}"
-  log_data "Theme change to $color"
+  log "Theme change to $color."
 }
 
 toggle_theme() {
@@ -52,16 +50,16 @@ toggle_theme() {
         ;;
       Disable)
         sed -i "s|${change[Login]}|$disable|" ${libexec}/UMBRELLA.login
-        log_data "Disable theme"
+        log -d "Disable theme"
         break
         ;;
       Enable)
         main "$red"
-        log_data "Enable theme"
+        log -d "Enable theme"
         break
         ;;
       *)
-        echo -e "${red}Error:${yellow} No valid option!. Try again.${default}"
+        error "No valid option!. Try again.${default}"
         ;;
     esac
   done
@@ -76,7 +74,7 @@ fi
 case "$1" in
   -c|--color)
     if [[ -z "$2" ]]; then
-      echo -e "${red}Error:${yellow} You must specify a color.${default}"
+      error "You must specify a color."
       list_themes
       exit 1;
     fi
@@ -89,7 +87,7 @@ case "$1" in
     list_themes
     ;;
   *)
-    echo -e "${red}Error:${yellow} No valid option '$1'."
+    error "No valid option '$1'."
     echo -e "${yellow}Input theme color, run ${green}theme ${red}-c <color>${default}\n"
     info
     exit 1

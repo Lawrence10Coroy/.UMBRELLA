@@ -7,14 +7,12 @@ case $1 in
   -h|--help)
     theme red
     helpper
-    log_data "Get help UMBRELLA CORPORATION"
      exit 0
      ;;
    -v|--version)
      printf "${yellow}☣ U M B R E L L A  C O R P O R A T I O N ☣\n$version © 2023 by LAWRENCE COROY${default}\n"
-     log_data "Get version"
      ;;
-   *) echo -e "${red}Error:${yellow} Options '$1' invalid!.${default}"
+   *) error "Options '$1' invalid!.${default}"
      info ; exit 1;
      ;;
  esac
